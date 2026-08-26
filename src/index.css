@@ -1,0 +1,130 @@
+:root {
+  color-scheme: dark;
+
+  /* surfaces */
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface-raised: #26344a;
+  --border: rgba(255, 255, 255, 0.14);
+  --border-strong: rgba(255, 255, 255, 0.24);
+
+  /* ink */
+  --text: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #8b96a8;
+
+  /* brand accent (used for buttons, links, the forecast line) */
+  --accent: #38bdf8;
+  --accent-soft: rgba(56, 189, 248, 0.15);
+
+  /* emergency accent — reserved, only appears when Emergency Mode is active */
+  --emergency: #ff3b3b;
+  --emergency-soft: rgba(255, 59, 59, 0.14);
+
+  /* flame brand mark */
+  --flame: #f97316;
+
+  /* AQI status scale — EPA order/meaning preserved, muted for a professional
+     dashboard read instead of neon. See src/lib/riskScoring.js. */
+  --status-good: #10b981;
+  --status-moderate: #f5a524;
+  --status-sensitive: #ea7c2c;
+  --status-unhealthy: #e0483e;
+  --status-very-unhealthy: #8b5cf6;
+  --status-hazardous: #7f1d3a;
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 12px 32px -16px rgba(0, 0, 0, 0.6);
+
+  --sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --display: "Lexend", var(--sans);
+  --mono: ui-monospace, Consolas, monospace;
+
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--bg);
+  background-image: radial-gradient(circle at 12% 0%, rgba(56, 189, 248, 0.12), transparent 42%),
+    radial-gradient(circle at 88% 10%, rgba(139, 92, 246, 0.09), transparent 38%),
+    radial-gradient(circle at 50% 100%, rgba(249, 115, 22, 0.07), transparent 45%);
+  background-attachment: fixed;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  color: var(--text);
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(1.5rem, 4vw, 2.1rem);
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 1rem;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+p {
+  margin: 0;
+}
+
+select,
+button {
+  font-family: var(--sans);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--accent-soft);
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
