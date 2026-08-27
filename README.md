@@ -7,9 +7,15 @@ Hyper-local wildfire/air-quality decision-support app for Contra Costa schools �
 Instead of showing a raw AQI number, it fuses AQI + weather/wind + nearest active
 wildfire + the specific activity you're about to do (soccer practice, marching band,
 PE, walk/bike commute) into one plain-language recommendation. A separate Emergency
-Mode screen shows real fire distance/direction + wind + AQI, with honest links out to
-official evacuation/shelter sources — it deliberately does not compute its own
-evacuation routes or zones.
+Mode screen shows real fire distance/direction + wind + AQI + active evacuation
+zones/shelters/road closures, with honest links out to official sources — it
+deliberately does not compute its own evacuation routes, and the AI assistant
+(Household tab) only explains data already in the app, never a new safety verdict.
+
+It's also grown into a fuller household preparedness tool: a multi-person household
+profile (needs/responsibilities per member, not just one contact), a fire-season prep
+checklist sourced from CAL FIRE's Ready/Set/Go program, post-incident recovery
+resources, and an AI assistant scoped to the household's own saved plan.
 
 ## Current status
 
@@ -65,6 +71,15 @@ before real data sources are configured.
   - Still not built: a downloadable shelter/map data *bundle* — there's still no real shelter database to bundle, so this remains honestly out of scope.
 - [x] UI: added an at-a-glance stat widget row (wind, fire distance, 3-hr trend) next to the AQI hero number — real data already flowing through the app, previously only visible inside Emergency Mode or the forecast card. Also gave the Emergency toggle a persistent red identity (not just when active) so it reads as a standalone alarm control. Inspired by DALL-E mockups the user shared; the mockups' fabricated "Evacuation Difficulty: 72/100," "Route A: 18 min," and "Family Status: Safe" widgets were explicitly **not** built — those are exactly the kind of invented safety data this project has held the line against all session. See `src/components/StatWidgets.jsx`.
 
+### Household preparedness expansion
+
+- [x] **Evacuation zones — corrected a "no data source exists" claim a third time.** Cal OES publishes a real, free, keyless statewide aggregation of every county's Genasys/Zonehaven evacuation zones (`src/lib/evacuationZones.js`), refreshed every 5 minutes. Live-verified: 47 active Warning/Order zones nationwide-in-CA right now (none in Contra Costa today — correctly empty, same as shelters/perimeters when there's no active incident there). Drawn on the map as amber/red polygons and listed in Emergency Mode within 40 mi.
+- [x] **Household profile rebuilt around real multi-person data** (`src/lib/familyPlan.js`, `src/components/FamilyPlan.jsx`): repeatable household members (name/type/needs/responsibility) and repeatable emergency contacts, replacing the single contact-name/phone pair. Old saved plans are folded into the new shape on load, no migration script needed. Surfaced in Emergency Mode so needs/responsibilities are visible under pressure, not just in the settings form.
+- [x] **Fire-season prep checklist** (`src/lib/prepChecklist.js`, `src/components/PrepChecklist.jsx`) — real items transcribed from CAL FIRE's Ready/Set/Go program (readyforwildfire.org) and ready.gov/wildfires, grouped by phase, progress saved per-user in Firestore (`prepProgress/{uid}`, needs the same console rule as the other two collections — see below).
+- [x] **Recovery resources** (`src/components/RecoveryResources.jsx`) — a live check against OpenFEMA's free Disaster Declarations API (`src/lib/disasterDeclarations.js`, verified live: real historical Contra Costa declarations, e.g. DR-4683-CA 2023 flooding) plus real static links (DisasterAssistance.gov, 211 Contra Costa, IRS casualty-loss guidance, Red Cross, Cal OES). No fabricated "recovery score."
+- [x] **Offline bundle closed the previously-declined gap**: `shelters`, `firePerimeters`, and `evacuationZones` are now included in the offline snapshot (`src/lib/offlineCache.js`), not just AQI/weather/hotspots — there's real data worth caching now, unlike when offline mode was first built.
+- [ ] **AI assistant (Household tab, "Ask About Your Plan")** — built, but needs one manual step only you can do before it works: it calls a Firebase Cloud Function (`functions/index.js`) that reads your saved plan server-side and asks Gemini (`gemini-flash-latest` — a real Google alias that auto-tracks the current GA Flash release, confirmed via ai.google.dev/gemini-api/docs/models) to answer, strictly scoped to explaining that data — hard-instructed to never invent an evacuation route or medical advice. This needed a real backend because Google's (like Anthropic's and OpenAI's) chat APIs block direct browser calls by design, specifically so a key can't be lifted from a public site's network tab — every other integration in this app is keyless-or-client-safe; this is the one exception. **Cost**: Gemini's Flash tier is free up to 1,500 requests/day at ai.google.dev — no billing account needed for the model calls themselves, unlike the Anthropic version this originally shipped with. **To activate**: get a free key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey), enable the Blaze (pay-as-you-go) plan for this Firebase project in the console — that part's still needed just to host the Cloud Function itself, free at this usage scale but requires a card on file — then run `firebase functions:secrets:set GEMINI_API_KEY` and `firebase deploy --only functions` from this project's root (needs the Firebase CLI: `npm install -g firebase-tools`, then `firebase login`). Until that's done, the assistant will show a clear "couldn't reach the assistant" message rather than fail silently.
+
 ## Getting started
 
 ```
@@ -86,12 +101,15 @@ two things need to be turned on in the [Firebase console](https://console.fireba
 
 1. **Authentication > Sign-in method > Anonymous** — enable it (off by default)
 2. **Firestore Database > Rules** — allow a signed-in (even anonymous) user to read/write
-   only their own doc, in both the alert-settings and family-plan collections:
+   only their own doc, across all three collections (alert settings, family plan, prep progress):
    ```
    match /alertSettings/{uid} {
      allow read, write: if request.auth != null && request.auth.uid == uid;
    }
    match /familyPlans/{uid} {
+     allow read, write: if request.auth != null && request.auth.uid == uid;
+   }
+   match /prepProgress/{uid} {
      allow read, write: if request.auth != null && request.auth.uid == uid;
    }
    ```

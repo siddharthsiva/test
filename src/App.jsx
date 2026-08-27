@@ -8,11 +8,13 @@ import { fetchWildfireHotspots, nearestWildfire, nearestWildfireFrom } from "./l
 import { fetchFirePerimeters } from "./lib/firePerimeters";
 import { fetchOpenShelters } from "./lib/shelters";
 import { fetchRoadClosures } from "./lib/roadClosures";
+import { fetchEvacuationZones } from "./lib/evacuationZones";
 import { getRecommendation } from "./lib/recommendation";
 import { recordReading, predictSeries } from "./lib/trendPrediction";
 import { ensureSignedIn } from "./lib/auth";
 import { getAlertSettings, saveAlertSettings, checkAndNotify, checkAndNotifyWildfire } from "./lib/alerts";
 import { getFamilyPlan, saveFamilyPlan } from "./lib/familyPlan";
+import { getPrepProgress, savePrepProgress } from "./lib/prepProgress";
 import { saveSnapshot, getSnapshot } from "./lib/offlineCache";
 import { LocationPicker } from "./components/LocationPicker";
 import { ActivityPicker } from "./components/ActivityPicker";
@@ -23,13 +25,16 @@ import { ForecastSparkline } from "./components/ForecastSparkline";
 import { EmergencyMode } from "./components/EmergencyMode";
 import { AlertSettings } from "./components/AlertSettings";
 import { FamilyPlan } from "./components/FamilyPlan";
+import { PrepChecklist } from "./components/PrepChecklist";
+import { RecoveryResources } from "./components/RecoveryResources";
+import { AssistantChat } from "./components/AssistantChat";
 import { SchoolDashboard } from "./components/SchoolDashboard";
 import "./App.css";
 
 const DEFAULT_ALERT_SETTINGS = { thresholdAqi: 150, wildfireThresholdMiles: 20, notificationsEnabled: false };
 
 function App() {
-  const [view, setView] = useState("home"); // "home" | "school"
+  const [view, setView] = useState("home"); // "home" | "school" | "household"
   const [emergencyActive, setEmergencyActive] = useState(false);
 
   const [selectedLocationId, setSelectedLocationId] = useState(LOCATIONS[0].id);
@@ -42,6 +47,7 @@ function App() {
   const [firePerimeters, setFirePerimeters] = useState([]);
   const [shelters, setShelters] = useState([]);
   const [roadClosures, setRoadClosures] = useState([]);
+  const [evacuationZones, setEvacuationZones] = useState([]);
   const [forecast, setForecast] = useState([]);
   const [offlineSince, setOfflineSince] = useState(null); // timestamp of the cached snapshot being shown, or null if live
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -50,15 +56,22 @@ function App() {
   const [uid, setUid] = useState(null);
   const [alertSettings, setAlertSettings] = useState(DEFAULT_ALERT_SETTINGS);
   const [familyPlan, setFamilyPlan] = useState(null);
+  const [prepProgress, setPrepProgress] = useState([]);
 
-  // Sign in (anonymous, no login screen) and load any previously saved alert settings + family plan.
+  // Sign in (anonymous, no login screen) and load any previously saved alert
+  // settings, family plan, and prep checklist progress.
   useEffect(() => {
     ensureSignedIn().then(async (id) => {
       setUid(id);
       if (!id) return;
-      const [savedAlerts, savedPlan] = await Promise.all([getAlertSettings(id), getFamilyPlan(id)]);
+      const [savedAlerts, savedPlan, savedPrep] = await Promise.all([
+        getAlertSettings(id),
+        getFamilyPlan(id),
+        getPrepProgress(id),
+      ]);
       if (savedAlerts) setAlertSettings(savedAlerts);
       if (savedPlan) setFamilyPlan(savedPlan);
+      if (savedPrep) setPrepProgress(savedPrep);
     });
   }, []);
 
@@ -97,6 +110,7 @@ function App() {
       setFirePerimeters([]);
       setShelters([]);
       setRoadClosures([]);
+      setEvacuationZones([]);
       setForecast([]);
       setOfflineSince(null);
       setNoCacheForLocation(false);
@@ -107,6 +121,9 @@ function App() {
         setWeather(snapshot.weather);
         setHotspots(snapshot.hotspots);
         setSensors(snapshot.sensors ?? []);
+        setFirePerimeters(snapshot.firePerimeters ?? []);
+        setShelters(snapshot.shelters ?? []);
+        setEvacuationZones(snapshot.evacuationZones ?? []);
         setForecast(snapshot.forecast);
         setOfflineSince(snapshot.savedAt);
       } else {
@@ -122,6 +139,7 @@ function App() {
     setFirePerimeters([]);
     setShelters([]);
     setRoadClosures([]);
+    setEvacuationZones([]);
     setForecast([]);
     setOfflineSince(null);
     setNoCacheForLocation(false);
@@ -134,7 +152,8 @@ function App() {
       fetchFirePerimeters(location.lat, location.lng),
       fetchOpenShelters(location.lat, location.lng),
       fetchRoadClosures(location.lat, location.lng),
-    ]).then(([aqiResult, weatherResult, hotspotsResult, sensorsResult, firePerimeterResult, sheltersResult, roadClosuresResult]) => {
+      fetchEvacuationZones(location.lat, location.lng),
+    ]).then(([aqiResult, weatherResult, hotspotsResult, sensorsResult, firePerimeterResult, sheltersResult, roadClosuresResult, evacuationZonesResult]) => {
       if (cancelled) return;
 
       setAqiReading(aqiResult);
@@ -144,6 +163,7 @@ function App() {
       setFirePerimeters(firePerimeterResult);
       setShelters(sheltersResult);
       setRoadClosures(roadClosuresResult);
+      setEvacuationZones(evacuationZonesResult);
 
       const history = recordReading(location.id, aqiResult.aqi);
       const forecastResult = predictSeries(history);
@@ -155,6 +175,9 @@ function App() {
           weather: weatherResult,
           hotspots: hotspotsResult,
           sensors: sensorsResult,
+          firePerimeters: firePerimeterResult,
+          shelters: sheltersResult,
+          evacuationZones: evacuationZonesResult,
           forecast: forecastResult,
         });
       }
@@ -185,6 +208,14 @@ function App() {
   function handleFamilyPlanSave(plan) {
     setFamilyPlan(plan);
     if (uid) saveFamilyPlan(uid, plan);
+  }
+
+  function handlePrepToggle(itemId) {
+    const next = prepProgress.includes(itemId)
+      ? prepProgress.filter((id) => id !== itemId)
+      : [...prepProgress, itemId];
+    setPrepProgress(next);
+    if (uid) savePrepProgress(uid, next);
   }
 
   const location = LOCATIONS.find((l) => l.id === selectedLocationId);
@@ -229,6 +260,9 @@ function App() {
           <button type="button" className={view === "school" ? "active" : ""} onClick={() => setView("school")}>
             School Dashboard
           </button>
+          <button type="button" className={view === "household" ? "active" : ""} onClick={() => setView("household")}>
+            Household
+          </button>
         </nav>
 
         <div className="mode-toggle">
@@ -268,18 +302,22 @@ function App() {
                 weather={weather}
                 wildfire={nearestFire}
                 schoolName={familyPlan?.school}
+                members={familyPlan?.members}
+                contacts={familyPlan?.contacts}
                 schoolWildfire={schoolFire}
                 shelters={shelters}
                 roadClosures={roadClosures}
+                evacuationZones={evacuationZones}
               />
-              {familyPlan && (familyPlan.contactName || familyPlan.meetingLocation) && (
+              {familyPlan && (familyPlan.contacts?.length > 0 || familyPlan.meetingLocation) && (
                 <div className="family-plan-recap">
                   <strong>Your family plan:</strong>{" "}
                   {familyPlan.meetingLocation && <>Meet at {familyPlan.meetingLocation}. </>}
-                  {familyPlan.contactName && (
+                  {familyPlan.contacts?.length > 0 && (
                     <>
-                      Contact {familyPlan.contactName}
-                      {familyPlan.contactPhone && ` (${familyPlan.contactPhone})`}.
+                      Contact {familyPlan.contacts[0].name}
+                      {familyPlan.contacts[0].phone && ` (${familyPlan.contacts[0].phone})`}
+                      {familyPlan.contacts.length > 1 && ` +${familyPlan.contacts.length - 1} more`}.
                     </>
                   )}
                 </div>
@@ -310,6 +348,7 @@ function App() {
               hotspots={hotspots}
               firePerimeters={firePerimeters}
               shelters={shelters}
+              evacuationZones={evacuationZones}
             />
           </section>
 
@@ -327,21 +366,30 @@ function App() {
                 weather={weather}
                 wildfire={nearestFire}
                 schoolName={familyPlan?.school}
+                members={familyPlan?.members}
+                contacts={familyPlan?.contacts}
                 schoolWildfire={schoolFire}
                 shelters={shelters}
                 roadClosures={roadClosures}
+                evacuationZones={evacuationZones}
               />
             )}
-            <FamilyPlan plan={familyPlan} onSave={handleFamilyPlanSave} />
           </section>
         </>
-      ) : (
+      ) : view === "school" ? (
         <SchoolDashboard
           locationName={location.name}
           aqiReading={aqiReading}
           weather={weather}
           wildfire={nearestFire}
         />
+      ) : (
+        <section className="household-view">
+          <FamilyPlan plan={familyPlan} onSave={handleFamilyPlanSave} />
+          <PrepChecklist checkedIds={prepProgress} onToggle={handlePrepToggle} />
+          <AssistantChat />
+          <RecoveryResources />
+        </section>
       )}
     </div>
   );

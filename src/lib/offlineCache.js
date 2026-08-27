@@ -7,7 +7,7 @@ const PREFIX = "smokesmart:snapshot:";
 
 /**
  * @param {string} locationId
- * @param {{ aqiReading: object, weather: object|null, hotspots: object[], forecast: object[], sensors: object[] }} snapshot
+ * @param {{ aqiReading: object, weather: object|null, hotspots: object[], forecast: object[], sensors: object[], firePerimeters: object[], shelters: object[], evacuationZones: object[] }} snapshot
  */
 export function saveSnapshot(locationId, snapshot) {
   try {

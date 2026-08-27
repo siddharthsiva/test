@@ -2,8 +2,10 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
 /**
- * @typedef {{ home: string, school: string, work: string, contactName: string,
- *   contactPhone: string, meetingLocation: string }} FamilyPlan
+ * @typedef {{ id: string, name: string, type: "adult"|"child"|"elderly"|"pet", needs: string, responsibility: string }} HouseholdMember
+ * @typedef {{ id: string, name: string, phone: string, relation: string }} EmergencyContact
+ * @typedef {{ home: string, school: string, schoolLat: number|null, schoolLng: number|null,
+ *   work: string, meetingLocation: string, members: HouseholdMember[], contacts: EmergencyContact[] }} FamilyPlan
  */
 
 /**

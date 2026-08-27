@@ -47,8 +47,9 @@ function RecenterMap({ center }) {
  * @param {{ lat: number, lng: number, distanceMiles: number, direction: string, confidence: string }[]} hotspots
  * @param {{ name: string, acres: number|null, rings: [number, number][][] }[]} firePerimeters
  * @param {{ lat: number, lng: number, name: string, address: string, city: string, distanceMiles: number }[]} shelters
+ * @param {{ zoneName: string, status: string, publicInfo: string|null, rings: [number, number][][] }[]} evacuationZones
  */
-export function MapView({ location, sensors, hotspots, firePerimeters = [], shelters = [] }) {
+export function MapView({ location, sensors, hotspots, firePerimeters = [], shelters = [], evacuationZones = [] }) {
   const center = [location.lat, location.lng];
 
   return (
@@ -109,6 +110,34 @@ export function MapView({ location, sensors, hotspots, firePerimeters = [], shel
           ))
         )}
 
+        {evacuationZones.map((zone, i) =>
+          zone.rings.map((ring, j) => (
+            <Polygon
+              key={`zone-${i}-${j}`}
+              positions={ring}
+              pathOptions={{
+                color: zone.status === "Evacuation Order" ? "#ff3b3b" : "#f5a623",
+                weight: 2,
+                dashArray: "6 4",
+                fillColor: zone.status === "Evacuation Order" ? "#ff3b3b" : "#f5a623",
+                fillOpacity: 0.12,
+              }}
+            >
+              <Popup>
+                <strong>{zone.zoneName}</strong> — {zone.status}
+                {zone.publicInfo && (
+                  <>
+                    <br />
+                    {zone.publicInfo}
+                  </>
+                )}
+                <br />
+                Cal OES statewide evacuation feed, updated every ~5 min.
+              </Popup>
+            </Polygon>
+          ))
+        )}
+
         {shelters.map((s, i) => (
           <Marker key={i} position={[s.lat, s.lng]} icon={shelterIcon}>
             <Popup>
@@ -141,6 +170,9 @@ export function MapView({ location, sensors, hotspots, firePerimeters = [], shel
         {sensors.length > 0 ? `${sensors.length} air sensors` : "No live sensor data"} · {hotspots.length} active
         fire detection{hotspots.length === 1 ? "" : "s"}
         {shelters.length > 0 && <> · {shelters.length} shelter{shelters.length === 1 ? "" : "s"} open now</>}
+        {evacuationZones.length > 0 && (
+          <> · {evacuationZones.length} active evacuation zone{evacuationZones.length === 1 ? "" : "s"}</>
+        )}
       </p>
     </div>
   );

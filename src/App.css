@@ -457,7 +457,10 @@
 .emergency-mode,
 .forecast-sparkline,
 .family-plan,
-.school-dashboard {
+.school-dashboard,
+.prep-checklist,
+.recovery-resources,
+.assistant-chat {
   background: color-mix(in srgb, var(--surface) 88%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -473,7 +476,10 @@
 .emergency-mode:hover,
 .forecast-sparkline:hover,
 .family-plan:hover,
-.school-dashboard:hover {
+.school-dashboard:hover,
+.prep-checklist:hover,
+.recovery-resources:hover,
+.assistant-chat:hover {
   border-color: var(--border-strong);
 }
 
@@ -481,7 +487,10 @@
 .emergency-mode h2,
 .forecast-sparkline h2,
 .family-plan h2,
-.school-dashboard h2 {
+.school-dashboard h2,
+.prep-checklist h2,
+.recovery-resources h2,
+.assistant-chat h2 {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -642,6 +651,105 @@
   text-decoration: underline;
 }
 
+/* ---------- household view / assistant ---------- */
+
+.household-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.assistant-log {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.assistant-question {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.assistant-answer {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+}
+
+.assistant-error {
+  font-size: 0.85rem;
+  color: var(--status-unhealthy, #c0392b);
+}
+
+.assistant-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.assistant-form input {
+  flex: 1;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.assistant-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.assistant-form button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--accent);
+  color: #06202e;
+  flex-shrink: 0;
+}
+
+.assistant-form button:disabled {
+  opacity: 0.6;
+}
+
+/* ---------- recovery resources ---------- */
+
+.recovery-resources h3 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 1rem 0 0.5rem;
+}
+
+.recovery-declarations ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.88rem;
+}
+
+.recovery-muted {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
 /* ---------- school dashboard ---------- */
 
 .school-dashboard {
@@ -787,6 +895,45 @@
   margin-top: 1rem;
 }
 
+/* ---------- prep checklist ---------- */
+
+.prep-phase {
+  margin-top: 1rem;
+}
+
+.prep-phase h3 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.prep-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.prep-items label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.88rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.prep-items input[type="checkbox"] {
+  margin-top: 0.2rem;
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+
 /* ---------- family plan ---------- */
 
 .family-plan-sub {
@@ -844,6 +991,100 @@
   border: none;
   background: var(--accent);
   color: #06202e;
+}
+
+.family-plan-group {
+  border-top: 1px solid var(--border);
+  padding-top: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.family-plan-group-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.family-plan-group-head > span:first-child {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.family-plan-group-sub {
+  font-size: 0.78rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--text-muted);
+}
+
+.family-plan-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr auto;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.family-plan-row--contact {
+  grid-template-columns: 1fr 1fr 1fr auto;
+}
+
+.family-plan-row input,
+.family-plan-row select {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text);
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.family-plan-row input:focus,
+.family-plan-row select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.family-plan-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.family-plan-add {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .family-plan-row,
+  .family-plan-row--contact {
+    grid-template-columns: 1fr;
+  }
 }
 
 .family-plan-hint {

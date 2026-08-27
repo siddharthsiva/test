@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { initializeFirestore, persistentLocalCache, getFirestore } from "firebase/firestore";
+import { getFunctions } from "firebase/functions";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -26,3 +27,8 @@ function createDb() {
 }
 
 export const db = createDb();
+
+// Used by assistant.js to call the askPlanAssistant Cloud Function. Only
+// works once that function is deployed (requires the Blaze plan) — see
+// README for the manual setup step.
+export const functions = app ? getFunctions(app) : null;

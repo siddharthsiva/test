@@ -1,14 +1,17 @@
-import { Flame, Home, Construction } from "lucide-react";
+import { Flame, Home, Construction, ShieldAlert, Users, Phone } from "lucide-react";
 import { windDirectionCompass } from "../lib/weather";
 import { getEmergencyRiskLevel } from "../lib/recommendation";
 
+const NEARBY_ZONE_MILES = 40;
+
 // Real data only (fire distance/direction, wind, AQI, open shelters, active
-// road closures) plus links to the actual authoritative sources —
-// deliberately does NOT compute evacuation routes/zones itself. See README
-// for why. Both links below were
-// verified against independent search results (not just fetched) to be the
-// genuine official Contra Costa CWS and Cal Fire incidents pages.
-export function EmergencyMode({ aqi, weather, wildfire, schoolName, schoolWildfire, shelters = [], roadClosures = [] }) {
+// road closures, active evacuation zones) plus links to the actual
+// authoritative sources — deliberately does NOT compute its own evacuation
+// routes. See README for why. Both links below were verified against
+// independent search results (not just fetched) to be the genuine official
+// Contra Costa CWS and Cal Fire incidents pages.
+export function EmergencyMode({ aqi, weather, wildfire, schoolName, schoolWildfire, shelters = [], roadClosures = [], evacuationZones = [], members = [], contacts = [] }) {
+  const nearbyZones = evacuationZones.filter((z) => z.distanceMiles <= NEARBY_ZONE_MILES);
   const hasFire = wildfire != null;
   const risk = aqi != null ? getEmergencyRiskLevel(aqi, wildfire) : null;
 
@@ -47,6 +50,76 @@ export function EmergencyMode({ aqi, weather, wildfire, schoolName, schoolWildfi
       )}
 
       {aqi != null && <p>Current AQI: {aqi}</p>}
+
+      {members.length > 0 && (
+        <div className="shelter-list">
+          <p className="shelter-list-heading">
+            <Users size={14} strokeWidth={2.25} /> Household ({members.length})
+          </p>
+          <ul>
+            {members.map((m) => (
+              <li key={m.id}>
+                <strong>{m.name || "Unnamed"}</strong> — {m.type}
+                {m.needs && (
+                  <>
+                    <br />
+                    Needs: {m.needs}
+                  </>
+                )}
+                {m.responsibility && (
+                  <>
+                    <br />
+                    Responsible for: {m.responsibility}
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {contacts.length > 0 && (
+        <div className="shelter-list">
+          <p className="shelter-list-heading">
+            <Phone size={14} strokeWidth={2.25} /> Contacts
+          </p>
+          <ul>
+            {contacts.map((c) => (
+              <li key={c.id}>
+                <strong>{c.name}</strong>{c.relation && ` (${c.relation})`}
+                {c.phone && (
+                  <>
+                    <br />
+                    {c.phone}
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {nearbyZones.length > 0 && (
+        <div className="shelter-list">
+          <p className="shelter-list-heading">
+            <ShieldAlert size={14} strokeWidth={2.25} /> {nearbyZones.length} active evacuation zone{nearbyZones.length === 1 ? "" : "s"} within {NEARBY_ZONE_MILES} mi
+            (Cal OES statewide feed)
+          </p>
+          <ul>
+            {nearbyZones.slice(0, 3).map((z) => (
+              <li key={z.zoneId}>
+                <strong>{z.zoneName}</strong> — {z.status}, {z.distanceMiles} mi {z.direction}
+                {z.publicInfo && (
+                  <>
+                    <br />
+                    {z.publicInfo}
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {shelters.length > 0 && (
         <div className="shelter-list">
