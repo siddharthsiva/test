@@ -381,12 +381,31 @@ function App() {
           </div>
         </>
       ) : view === "school" ? (
-        <SchoolDashboard
-          locationName={location.name}
-          aqiReading={aqiReading}
-          weather={weather}
-          wildfire={nearestFire}
-        />
+        <div className="dashboard-grid">
+          <div className="dashboard-main">
+            <SchoolDashboard
+              locationName={location.name}
+              aqiReading={aqiReading}
+              weather={weather}
+              wildfire={nearestFire}
+            />
+            <section className="map-hero">
+              <MapView
+                location={location}
+                sensors={sensors}
+                hotspots={hotspots}
+                firePerimeters={firePerimeters}
+                shelters={shelters}
+                evacuationZones={evacuationZones}
+              />
+            </section>
+          </div>
+
+          <div className="dashboard-side">
+            <StatWidgets weather={weather} wildfire={nearestFire} trendDirection={trendDirection} />
+            <ForecastSparkline series={forecast} />
+          </div>
+        </div>
       ) : (
         <section className="household-view">
           <div className="household-col">

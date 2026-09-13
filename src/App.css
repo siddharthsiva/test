@@ -845,9 +845,6 @@
 
 /* ---------- school dashboard ---------- */
 
-.school-dashboard {
-  max-width: 900px;
-}
 
 .school-summary {
   display: flex;
