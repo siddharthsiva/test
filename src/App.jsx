@@ -243,42 +243,45 @@ function App() {
       : null;
 
   return (
-    <div className={`app-shell${emergencyActive ? " emergency-active" : ""}`}>
+    <div className={emergencyActive ? "page-root emergency-active" : "page-root"}>
       <header className="topbar">
-        <div className="brand">
-          <span className="brand-icon">
-            <Flame size={20} strokeWidth={2.25} />
-          </span>
-          <span className="brand-name">SmokeSmart</span>
-          <span className="locality-badge">Contra Costa County</span>
-        </div>
+        <div className="topbar-inner">
+          <div className="brand">
+            <span className="brand-icon">
+              <Flame size={20} strokeWidth={2.25} />
+            </span>
+            <span className="brand-name">SmokeSmart</span>
+            <span className="locality-badge">Contra Costa County</span>
+          </div>
 
-        <nav className="view-tabs">
-          <button type="button" className={view === "home" ? "active" : ""} onClick={() => setView("home")}>
-            Home
-          </button>
-          <button type="button" className={view === "school" ? "active" : ""} onClick={() => setView("school")}>
-            School Dashboard
-          </button>
-          <button type="button" className={view === "household" ? "active" : ""} onClick={() => setView("household")}>
-            Household
-          </button>
-        </nav>
+          <nav className="view-tabs">
+            <button type="button" className={view === "home" ? "active" : ""} onClick={() => setView("home")}>
+              Home
+            </button>
+            <button type="button" className={view === "school" ? "active" : ""} onClick={() => setView("school")}>
+              School Dashboard
+            </button>
+            <button type="button" className={view === "household" ? "active" : ""} onClick={() => setView("household")}>
+              Household
+            </button>
+          </nav>
 
-        <div className="mode-toggle">
-          <button type="button" className={!emergencyActive ? "active" : ""} onClick={() => setEmergencyActive(false)}>
-            Normal
-          </button>
-          <button
-            type="button"
-            className={`emergency${emergencyActive ? " active" : ""}`}
-            onClick={() => setEmergencyActive(true)}
-          >
-            <Flame size={14} strokeWidth={2.5} /> Emergency
-          </button>
+          <div className="mode-toggle">
+            <button type="button" className={!emergencyActive ? "active" : ""} onClick={() => setEmergencyActive(false)}>
+              Normal
+            </button>
+            <button
+              type="button"
+              className={`emergency${emergencyActive ? " active" : ""}`}
+              onClick={() => setEmergencyActive(true)}
+            >
+              <Flame size={14} strokeWidth={2.5} /> Emergency
+            </button>
+          </div>
         </div>
       </header>
 
+      <div className="app-shell">
       {offlineSince && (
         <div className="offline-banner">
           <WifiOff size={15} strokeWidth={2.25} />
@@ -391,6 +394,7 @@ function App() {
           <RecoveryResources />
         </section>
       )}
+      </div>
     </div>
   );
 }

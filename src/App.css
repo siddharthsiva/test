@@ -6,9 +6,8 @@
   flex-direction: column;
 }
 
-.app-shell.emergency-active {
+.page-root.emergency-active {
   animation: emergency-pulse 2.4s ease-in-out infinite;
-  border-radius: 24px;
 }
 
 @keyframes emergency-pulse {
@@ -24,19 +23,33 @@
 /* ---------- topbar ---------- */
 
 .topbar {
+  /* A true sibling of .app-shell now (not nested inside its max-width
+     container), so plain 100% is genuinely full-bleed with no vw-vs-
+     scrollbar mismatch — the old width:100vw version rendered a few
+     pixels wider than the real viewport on any browser with a classic
+     (non-overlay) scrollbar, which cut the bar off at the wrong edge. */
   position: sticky;
   top: 0;
   z-index: 20;
+  width: 100%;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  /* Real separation from the page instead of a hairline — the bar should
+     read as a fixed instrument panel, not just a line under some text. */
+  box-shadow: 0 8px 24px -12px rgba(4, 8, 20, 0.55);
+}
+
+.topbar-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  padding: 1.1rem 0;
-  background: color-mix(in srgb, var(--bg) 75%, transparent);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--border);
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.1rem 1.25rem;
 }
 
 .brand {
@@ -48,12 +61,13 @@
 .brand-icon {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   font-size: 1.15rem;
-  border-radius: 10px;
-  background: linear-gradient(135deg, rgba(249, 115, 22, 0.18), var(--emergency-soft));
-  border: 1px solid var(--border-strong);
+  border-radius: 11px;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.25), var(--emergency-soft));
+  border: 1px solid color-mix(in srgb, var(--flame) 45%, var(--border-strong));
+  box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.08), 0 4px 14px -6px rgba(249, 115, 22, 0.5);
   color: var(--flame);
   flex-shrink: 0;
 }
@@ -495,8 +509,33 @@
 .assistant-chat h2 {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.85rem;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+
+/* A small colored badge behind each panel's header icon — every panel gets
+   a clear anchor point instead of a plain icon+text line, echoing the
+   brand mark's own treatment at a smaller scale. */
+.alert-settings h2 svg,
+.emergency-mode h2 svg,
+.forecast-sparkline h2 svg,
+.family-plan h2 svg,
+.school-dashboard h2 svg,
+.prep-checklist h2 svg,
+.recovery-resources h2 svg,
+.assistant-chat h2 svg {
+  flex-shrink: 0;
+  padding: 0.4rem;
+  box-sizing: content-box;
+  border-radius: 9px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.emergency-mode h2 svg {
+  background: var(--emergency-soft);
+  color: var(--emergency);
 }
 
 /* ---------- forecast sparkline ---------- */
@@ -1117,7 +1156,7 @@
 }
 
 @media (max-width: 480px) {
-  .topbar {
+  .topbar-inner {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
