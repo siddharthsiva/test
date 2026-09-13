@@ -144,16 +144,23 @@ function App() {
     setOfflineSince(null);
     setNoCacheForLocation(false);
 
-    Promise.all([
-      getCurrentAqi(location),
-      fetchWeather(location.lat, location.lng),
-      fetchWildfireHotspots(location.lat, location.lng),
-      fetchPurpleAirSensors(location.lat, location.lng),
-      fetchFirePerimeters(location.lat, location.lng),
-      fetchOpenShelters(location.lat, location.lng),
-      fetchRoadClosures(location.lat, location.lng),
-      fetchEvacuationZones(location.lat, location.lng),
-    ]).then(([aqiResult, weatherResult, hotspotsResult, sensorsResult, firePerimeterResult, sheltersResult, roadClosuresResult, evacuationZonesResult]) => {
+    // Sensors are fetched once here and reused for both the AQI average and
+    // the map, instead of getCurrentAqi() fetching the same expensive
+    // wide-area PurpleAir query a second time internally — that duplicate
+    // call was doubling PurpleAir's point cost on every single location
+    // load for identical data (see averageFromSensors' docstring).
+    fetchPurpleAirSensors(location.lat, location.lng).then((sensorsResult) => {
+      if (cancelled) return;
+
+      Promise.all([
+        getCurrentAqi(location, sensorsResult),
+        fetchWeather(location.lat, location.lng),
+        fetchWildfireHotspots(location.lat, location.lng),
+        fetchFirePerimeters(location.lat, location.lng),
+        fetchOpenShelters(location.lat, location.lng),
+        fetchRoadClosures(location.lat, location.lng),
+        fetchEvacuationZones(location.lat, location.lng),
+      ]).then(([aqiResult, weatherResult, hotspotsResult, firePerimeterResult, sheltersResult, roadClosuresResult, evacuationZonesResult]) => {
       if (cancelled) return;
 
       setAqiReading(aqiResult);
@@ -186,6 +193,7 @@ function App() {
         checkAndNotify(aqiResult.aqi, alertSettings.thresholdAqi, location.name);
         checkAndNotifyWildfire(nearestWildfire(hotspotsResult), alertSettings.wildfireThresholdMiles, location.name);
       }
+      });
     });
 
     return () => {

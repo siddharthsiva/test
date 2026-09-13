@@ -80,12 +80,20 @@ export async function fetchPurpleAirSensors(lat, lng) {
 }
 
 /**
- * Average PurpleAir sensors near a lat/lng into one location-level AQI
- * reading. Only sensors within LOCAL_AVERAGE_RADIUS_MILES count toward the
- * average, even though fetchPurpleAirSensors returns a wider set for the map.
+ * Average already-fetched PurpleAir sensors near a lat/lng into one
+ * location-level AQI reading. Only sensors within LOCAL_AVERAGE_RADIUS_MILES
+ * count toward the average, even though the caller's sensor list covers a
+ * wider area for the map.
+ *
+ * Deliberately takes `sensors` as an argument instead of fetching them
+ * itself — this used to call fetchPurpleAirSensors() a second time
+ * internally, meaning every page load fired the same expensive wide-area
+ * PurpleAir query twice (once here, once for the map) for identical data.
+ * PurpleAir bills by points per field-per-sensor returned, and doubling a
+ * query that already returns up to 1200 sensors is exactly what burned
+ * through this project's point balance. Fetch once, reuse the result.
  */
-async function fetchPurpleAir(lat, lng) {
-  const sensors = await fetchPurpleAirSensors(lat, lng);
+function averageFromSensors(sensors, lat, lng) {
   if (sensors.length === 0) return null;
 
   const local = sensors.filter((s) => s.distanceMiles <= LOCAL_AVERAGE_RADIUS_MILES);
@@ -132,10 +140,13 @@ function mockReading(location) {
 /**
  * Get the current AQI for a location, preferring PurpleAir (denser network),
  * falling back to AirNow, falling back to a mock reading for local dev.
+ * Takes the already-fetched sensor list (see averageFromSensors' docstring
+ * for why) rather than fetching it again itself.
  * @param {{ id: string, lat: number, lng: number }} location
+ * @param {{ pm25: number, lat: number, lng: number, distanceMiles: number }[]} sensors
  */
-export async function getCurrentAqi(location) {
-  const purpleAir = await fetchPurpleAir(location.lat, location.lng).catch(() => null);
+export async function getCurrentAqi(location, sensors) {
+  const purpleAir = averageFromSensors(sensors, location.lat, location.lng);
   if (purpleAir) return purpleAir;
 
   const airNow = await fetchAirNow(location.lat, location.lng).catch(() => null);

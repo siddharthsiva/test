@@ -541,6 +541,25 @@
 
 .map-svg-icon--fire {
   color: var(--emergency);
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 8px var(--emergency));
+  animation: fire-icon-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes fire-icon-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 4px var(--emergency));
+  }
+  50% {
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 12px var(--emergency));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-svg-icon--fire {
+    animation: none;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 8px var(--emergency));
+  }
 }
 
 .map-svg-icon--shelter {
