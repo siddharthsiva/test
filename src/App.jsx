@@ -296,38 +296,38 @@ function App() {
         </div>
       )}
 
-      {view === "home" ? (
-        <>
-          {emergencyActive && (
-            <div className="emergency-banner">
-              <EmergencyMode
-                aqi={aqiReading?.aqi}
-                weather={weather}
-                wildfire={nearestFire}
-                schoolName={familyPlan?.school}
-                members={familyPlan?.members}
-                contacts={familyPlan?.contacts}
-                schoolWildfire={schoolFire}
-                shelters={shelters}
-                roadClosures={roadClosures}
-                evacuationZones={evacuationZones}
-              />
-              {familyPlan && (familyPlan.contacts?.length > 0 || familyPlan.meetingLocation) && (
-                <div className="family-plan-recap">
-                  <strong>Your family plan:</strong>{" "}
-                  {familyPlan.meetingLocation && <>Meet at {familyPlan.meetingLocation}. </>}
-                  {familyPlan.contacts?.length > 0 && (
-                    <>
-                      Contact {familyPlan.contacts[0].name}
-                      {familyPlan.contacts[0].phone && ` (${familyPlan.contacts[0].phone})`}
-                      {familyPlan.contacts.length > 1 && ` +${familyPlan.contacts.length - 1} more`}.
-                    </>
-                  )}
-                </div>
+      {emergencyActive && (
+        <div className="emergency-banner">
+          <EmergencyMode
+            aqi={aqiReading?.aqi}
+            weather={weather}
+            wildfire={nearestFire}
+            schoolName={familyPlan?.school}
+            members={familyPlan?.members}
+            contacts={familyPlan?.contacts}
+            schoolWildfire={schoolFire}
+            shelters={shelters}
+            roadClosures={roadClosures}
+            evacuationZones={evacuationZones}
+          />
+          {familyPlan && (familyPlan.contacts?.length > 0 || familyPlan.meetingLocation) && (
+            <div className="family-plan-recap">
+              <strong>Your family plan:</strong>{" "}
+              {familyPlan.meetingLocation && <>Meet at {familyPlan.meetingLocation}. </>}
+              {familyPlan.contacts?.length > 0 && (
+                <>
+                  Contact {familyPlan.contacts[0].name}
+                  {familyPlan.contacts[0].phone && ` (${familyPlan.contacts[0].phone})`}
+                  {familyPlan.contacts.length > 1 && ` +${familyPlan.contacts.length - 1} more`}.
+                </>
               )}
             </div>
           )}
+        </div>
+      )}
 
+      {view === "home" ? (
+        <>
           <div className="dashboard-grid">
             <div className="dashboard-main">
               <div className="hero-pickers">

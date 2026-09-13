@@ -656,13 +656,22 @@
 }
 
 .emergency-banner {
-  margin-top: 1.5rem;
+  /* Pinned just below the topbar so it reads as a priority alert sitting
+     above the page — same idea as any "this takes precedence" banner
+     pattern — rather than an inline block that just pushes the dashboard
+     grid down and reads as another ordinary card. Shows on every tab
+     (Home/School/Household), not just Home, since an active emergency is
+     relevant regardless of which view you're looking at. */
+  position: sticky;
+  top: 76px;
+  z-index: 15;
+  margin: 1.25rem 0;
 }
 
 .emergency-banner .emergency-mode {
   background: linear-gradient(var(--emergency-soft), var(--emergency-soft)),
-    color-mix(in srgb, var(--surface) 88%, transparent);
-  box-shadow: 0 0 0 1px var(--emergency), 0 0 50px -12px var(--emergency-soft);
+    var(--bg);
+  box-shadow: 0 0 0 1px var(--emergency), 0 12px 32px -12px rgba(4, 8, 20, 0.7);
   border-left: none;
   border-top: 4px solid var(--emergency);
 }
