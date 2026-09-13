@@ -328,56 +328,57 @@ function App() {
             </div>
           )}
 
-          <section className="hero">
-            <div className="hero-pickers">
-              <LocationPicker selectedId={selectedLocationId} onChange={setSelectedLocationId} />
-              <ActivityPicker selectedId={selectedActivityId} onChange={setSelectedActivityId} />
+          <div className="dashboard-grid">
+            <div className="dashboard-main">
+              <div className="hero-pickers">
+                <LocationPicker selectedId={selectedLocationId} onChange={setSelectedLocationId} />
+                <ActivityPicker selectedId={selectedActivityId} onChange={setSelectedActivityId} />
+              </div>
+
+              <RecommendationCard
+                aqi={aqiReading?.aqi}
+                source={aqiReading?.source}
+                recommendation={recommendation}
+                activity={activity}
+              />
+
+              <section className="map-hero">
+                <MapView
+                  location={location}
+                  sensors={sensors}
+                  hotspots={hotspots}
+                  firePerimeters={firePerimeters}
+                  shelters={shelters}
+                  evacuationZones={evacuationZones}
+                />
+              </section>
             </div>
 
-            <RecommendationCard
-              aqi={aqiReading?.aqi}
-              source={aqiReading?.source}
-              recommendation={recommendation}
-              activity={activity}
-            />
-
-            <StatWidgets weather={weather} wildfire={nearestFire} trendDirection={trendDirection} />
-          </section>
-
-          <section className="map-hero">
-            <MapView
-              location={location}
-              sensors={sensors}
-              hotspots={hotspots}
-              firePerimeters={firePerimeters}
-              shelters={shelters}
-              evacuationZones={evacuationZones}
-            />
-          </section>
-
-          <section className="info-row">
-            <ForecastSparkline series={forecast} />
-            <AlertSettings
-              thresholdAqi={alertSettings.thresholdAqi}
-              wildfireThresholdMiles={alertSettings.wildfireThresholdMiles}
-              notificationsEnabled={alertSettings.notificationsEnabled}
-              onChange={handleAlertSettingsChange}
-            />
-            {!emergencyActive && (
-              <EmergencyMode
-                aqi={aqiReading?.aqi}
-                weather={weather}
-                wildfire={nearestFire}
-                schoolName={familyPlan?.school}
-                members={familyPlan?.members}
-                contacts={familyPlan?.contacts}
-                schoolWildfire={schoolFire}
-                shelters={shelters}
-                roadClosures={roadClosures}
-                evacuationZones={evacuationZones}
+            <div className="dashboard-side">
+              <StatWidgets weather={weather} wildfire={nearestFire} trendDirection={trendDirection} />
+              <ForecastSparkline series={forecast} />
+              <AlertSettings
+                thresholdAqi={alertSettings.thresholdAqi}
+                wildfireThresholdMiles={alertSettings.wildfireThresholdMiles}
+                notificationsEnabled={alertSettings.notificationsEnabled}
+                onChange={handleAlertSettingsChange}
               />
-            )}
-          </section>
+              {!emergencyActive && (
+                <EmergencyMode
+                  aqi={aqiReading?.aqi}
+                  weather={weather}
+                  wildfire={nearestFire}
+                  schoolName={familyPlan?.school}
+                  members={familyPlan?.members}
+                  contacts={familyPlan?.contacts}
+                  schoolWildfire={schoolFire}
+                  shelters={shelters}
+                  roadClosures={roadClosures}
+                  evacuationZones={evacuationZones}
+                />
+              )}
+            </div>
+          </div>
         </>
       ) : view === "school" ? (
         <SchoolDashboard
@@ -388,10 +389,14 @@ function App() {
         />
       ) : (
         <section className="household-view">
-          <FamilyPlan plan={familyPlan} onSave={handleFamilyPlanSave} />
-          <PrepChecklist checkedIds={prepProgress} onToggle={handlePrepToggle} />
-          <AssistantChat />
-          <RecoveryResources />
+          <div className="household-col">
+            <FamilyPlan plan={familyPlan} onSave={handleFamilyPlanSave} />
+            <PrepChecklist checkedIds={prepProgress} onToggle={handlePrepToggle} />
+          </div>
+          <div className="household-col">
+            <AssistantChat />
+            <RecoveryResources />
+          </div>
         </section>
       )}
       </div>
