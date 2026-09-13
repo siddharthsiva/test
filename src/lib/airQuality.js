@@ -4,21 +4,21 @@ import { distanceMiles } from "./haversine";
 const PURPLEAIR_KEY = import.meta.env.VITE_PURPLEAIR_API_KEY;
 const AIRNOW_KEY = import.meta.env.VITE_AIRNOW_API_KEY;
 
-// Bounding box half-width in degrees (~0.35deg ≈ 24 miles) for the PurpleAir
-// query. Wide enough to give the map a rich set of sensors to plot, not just
-// the one or two immediately on top of the selected city.
-const BOX_DEGREES = 0.35;
+// Bounding box half-width in degrees (~1.5deg ≈ 104 miles) for the PurpleAir
+// query. Wide enough that zooming out well past the county still shows a
+// dense field of sensors instead of running out of data at the edges.
+const BOX_DEGREES = 1.5;
 
 // The "official" location AQI average only uses sensors within this radius,
 // so a wider map box (above) doesn't dilute the location-specific reading
 // with sensors from a neighboring city.
 const LOCAL_AVERAGE_RADIUS_MILES = 8;
 
-// A 0.35deg box can return 1000+ sensors in dense areas — plotting all of
-// them as individual map markers would hurt render performance, especially
-// on phones. Capping to the closest N keeps the map fast while still being
-// far richer than the old tight box.
-const MAX_SENSORS = 300;
+// A 1.5deg box can return several thousand sensors in dense areas —
+// plotting all of them as individual map markers would hurt render
+// performance, especially on phones. Capping to the closest N keeps the map
+// fast while still being far richer than the old tight box.
+const MAX_SENSORS = 1200;
 
 // PurpleAir sensors occasionally report physically implausible raw readings
 // (malfunction/miscalibration) — e.g. 4998.5 µg/m³ next to neighbors reading
