@@ -123,6 +123,24 @@ code {
 
 button {
   cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+/* Consistent tactile press feedback everywhere, so it doesn't depend on
+   each component remembering to add its own :active rule. A specific
+   component can still override transform on its own :active if it needs
+   a different effect (e.g. the lift-on-hover buttons already do). */
+button:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button {
+    transition: none;
+  }
+  button:not(:disabled):active {
+    transform: none;
+  }
 }
 
 button:focus-visible,

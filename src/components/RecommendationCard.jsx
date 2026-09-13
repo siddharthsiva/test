@@ -1,7 +1,19 @@
 import { getActivityGuidanceTable } from "../lib/riskScoring";
 
 export function RecommendationCard({ aqi, source, recommendation, activity }) {
-  if (aqi == null || !recommendation) return <p>Loading conditions…</p>;
+  if (aqi == null || !recommendation) {
+    // Mirrors the real card's shape (same panel, same block sizes) so the
+    // layout doesn't jump once data arrives — a bare "Loading…" line would
+    // collapse the card down to one row and then snap open.
+    return (
+      <div className="recommendation-card recommendation-card--skeleton" aria-busy="true" aria-label="Loading conditions">
+        <div className="skeleton-block skeleton-number" />
+        <div className="skeleton-block skeleton-label" />
+        <div className="skeleton-block skeleton-line" />
+        <div className="skeleton-block skeleton-line" style={{ width: "80%" }} />
+      </div>
+    );
+  }
 
   const { category, guidance, notes } = recommendation;
   const table = activity ? getActivityGuidanceTable(activity.category) : [];

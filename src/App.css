@@ -257,6 +257,58 @@
   padding: 2.5rem 1.5rem 2rem;
 }
 
+.recommendation-card--skeleton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 280px;
+  justify-content: center;
+}
+
+.skeleton-block {
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--surface-raised) 25%,
+    color-mix(in srgb, var(--surface-raised) 60%, var(--text-muted)) 50%,
+    var(--surface-raised) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-block {
+    animation: none;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-number {
+  width: 160px;
+  height: 90px;
+  border-radius: 16px;
+}
+
+.skeleton-label {
+  width: 120px;
+  height: 18px;
+}
+
+.skeleton-line {
+  width: 60%;
+  height: 14px;
+}
+
 .recommendation-card::before {
   content: "";
   position: absolute;

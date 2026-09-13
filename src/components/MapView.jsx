@@ -52,6 +52,12 @@ function RecenterMap({ center }) {
 export function MapView({ location, sensors, hotspots, firePerimeters = [], shelters = [], evacuationZones = [] }) {
   const center = [location.lat, location.lng];
 
+  // Widening the sensor query range earlier this session means up to 1200
+  // points can render at once — at a fixed radius those overlap into an
+  // unreadable solid blob in dense areas. Scale the marker size down as the
+  // count grows so it stays legible instead of just adding more clutter.
+  const sensorRadius = sensors.length > 600 ? 4 : sensors.length > 200 ? 5 : 7;
+
   return (
     <div className="map-view">
       <MapContainer center={center} zoom={9} scrollWheelZoom={true} style={{ height: "360px", width: "100%" }}>
@@ -71,8 +77,8 @@ export function MapView({ location, sensors, hotspots, firePerimeters = [], shel
             <CircleMarker
               key={i}
               center={[s.lat, s.lng]}
-              radius={7}
-              pathOptions={{ color: "#fff", weight: 1, fillColor: category.color, fillOpacity: 0.9 }}
+              radius={sensorRadius}
+              pathOptions={{ color: "#fff", weight: sensorRadius > 5 ? 1 : 0.5, fillColor: category.color, fillOpacity: 0.8 }}
             >
               <Popup>
                 AQI {s.aqi} — {category.label}
