@@ -104,7 +104,7 @@ export function MapView({ location, sensors, hotspots, firePerimeters = [], shel
             <Polygon
               key={`${i}-${j}`}
               positions={ring}
-              pathOptions={{ color: "#ff3b3b", weight: 2, fillColor: "#ff3b3b", fillOpacity: 0.15 }}
+              pathOptions={{ color: "#ff3b3b", weight: 3, fillColor: "#ff3b3b", fillOpacity: 0.3, className: "fire-perimeter-path" }}
             >
               <Popup>
                 {fire.name}
@@ -123,10 +123,11 @@ export function MapView({ location, sensors, hotspots, firePerimeters = [], shel
               positions={ring}
               pathOptions={{
                 color: zone.status === "Evacuation Order" ? "#ff3b3b" : "#f5a623",
-                weight: 2,
-                dashArray: "6 4",
+                weight: 3,
+                dashArray: "8 5",
                 fillColor: zone.status === "Evacuation Order" ? "#ff3b3b" : "#f5a623",
-                fillOpacity: 0.12,
+                fillOpacity: 0.25,
+                className: zone.status === "Evacuation Order" ? "evac-zone-path evac-zone-path--order" : "evac-zone-path",
               }}
             >
               <Popup>

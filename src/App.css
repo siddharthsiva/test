@@ -562,6 +562,34 @@
   }
 }
 
+/* Real hazard layers get a pulse so they read as "active/urgent" against
+   the calmer sensor dots — fire perimeters (NIFC) and evacuation zones
+   (Cal OES) are both genuine current-state data, not decoration. */
+.fire-perimeter-path {
+  animation: hazard-pulse 2.2s ease-in-out infinite;
+}
+
+.evac-zone-path--order {
+  animation: hazard-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes hazard-pulse {
+  0%,
+  100% {
+    fill-opacity: 0.2;
+  }
+  50% {
+    fill-opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fire-perimeter-path,
+  .evac-zone-path--order {
+    animation: none;
+  }
+}
+
 .map-svg-icon--shelter {
   color: var(--status-good);
 }
