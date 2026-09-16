@@ -93,13 +93,21 @@ export async function fetchPurpleAirSensors(lat, lng) {
  * query that already returns up to 1200 sensors is exactly what burned
  * through this project's point balance. Fetch once, reuse the result.
  */
-function averageFromSensors(sensors, lat, lng) {
+export function averageFromSensors(sensors, lat, lng) {
   if (sensors.length === 0) return null;
 
-  const local = sensors.filter((s) => s.distanceMiles <= LOCAL_AVERAGE_RADIUS_MILES);
+  // Real distance from the point being asked about — NOT the sensor's
+  // precomputed `distanceMiles`, which is relative to wherever the original
+  // wide-area fetch was centered (e.g. the selected city). Re-deriving this
+  // is what makes it safe to reuse the same already-fetched sensor list for
+  // a different point (e.g. a saved school address) instead of firing a
+  // second expensive PurpleAir query for it.
+  const withDistance = sensors.map((s) => ({ ...s, distanceFromPoint: distanceMiles(lat, lng, s.lat, s.lng) }));
+
+  const local = withDistance.filter((s) => s.distanceFromPoint <= LOCAL_AVERAGE_RADIUS_MILES);
   // Fall back to the nearest few sensors if none happen to fall inside the
   // local radius (sparse coverage), rather than reporting nothing.
-  const forAverage = local.length > 0 ? local : [...sensors].sort((a, b) => a.distanceMiles - b.distanceMiles).slice(0, 3);
+  const forAverage = local.length > 0 ? local : [...withDistance].sort((a, b) => a.distanceFromPoint - b.distanceFromPoint).slice(0, 3);
 
   const avgPm25 = forAverage.reduce((sum, s) => sum + s.pm25, 0) / forAverage.length;
   return { aqi: pm25ToAqi(avgPm25), source: "purpleair", sensorCount: forAverage.length };

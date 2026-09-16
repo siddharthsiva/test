@@ -1,52 +1,58 @@
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* surfaces — neutral charcoal, not saturated blue-navy, so the warm
-     fire/alert colors below read as intentional accents rather than
-     competing with a blue-tinted base. */
-  --bg: #17191b;
-  --surface: #1f2225;
-  --surface-raised: #292d31;
-  --border: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.2);
+  /* surfaces — clean light neutral, solid white cards (no glass/blur —
+     the mockup's cards are solid white with a hairline border and a soft
+     shadow, not translucent panels over a glowing background). */
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --surface-raised: #f8f9fb;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
 
   /* ink */
-  --text: #f2f1ee;
-  --text-secondary: #c9c6c0;
-  --text-muted: #8c8983;
+  --text: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
 
-  /* brand accent (used for buttons, links, the forecast line) — a muted,
-     natural teal instead of a saturated "AI dashboard" cyan. Deliberately
-     cool and calm so it stays visually distinct from the warm flame/emergency
-     colors, which carry actual safety meaning and shouldn't be diluted by
-     also being the general interactive-element color. */
-  --accent: #4fb0a3;
-  --accent-soft: rgba(79, 176, 163, 0.15);
-  --on-accent: #0c211d;
+  /* brand accent (used for buttons, links, active nav) — blue, matching
+     the approved mockup. Deliberately distinct from the warm flame/
+     emergency colors, which carry actual safety meaning. */
+  --accent: #2563eb;
+  --accent-soft: rgba(37, 99, 235, 0.1);
+  --on-accent: #ffffff;
 
   /* emergency accent — reserved, only appears when Emergency Mode is active */
-  --emergency: #ff3b3b;
-  --emergency-soft: rgba(255, 59, 59, 0.14);
+  --emergency: #dc2626;
+  --emergency-soft: rgba(220, 38, 38, 0.08);
 
-  /* flame brand mark */
-  --flame: #f97316;
+  /* brand mark — green mountain/leaf mark per the approved design, not the
+     earlier orange flame. */
+  --brand: #16a34a;
+  --brand-soft: rgba(22, 163, 74, 0.12);
 
-  /* AQI status scale — EPA order/meaning preserved, muted for a professional
-     dashboard read instead of neon. See src/lib/riskScoring.js. */
-  --status-good: #10b981;
-  --status-moderate: #f5a524;
-  --status-sensitive: #ea7c2c;
-  --status-unhealthy: #e0483e;
-  --status-very-unhealthy: #8b5cf6;
-  --status-hazardous: #7f1d3a;
+  /* AQI status scale — EPA order/meaning preserved. See src/lib/riskScoring.js. */
+  --status-good: #16a34a;
+  --status-moderate: #d97706;
+  --status-sensitive: #ea580c;
+  --status-unhealthy: #dc2626;
+  --status-very-unhealthy: #7c3aed;
+  --status-hazardous: #831843;
+
+  /* light pastel card backgrounds behind each status, e.g. the "Current
+     AQI" card's tinted background — separate from the status ink color
+     above so text on top stays readable. */
+  --status-good-bg: #f0fdf4;
+  --status-moderate-bg: #fffbeb;
+  --status-sensitive-bg: #fff7ed;
+  --status-unhealthy-bg: #fef2f2;
+  --status-very-unhealthy-bg: #f5f3ff;
+  --status-hazardous-bg: #fdf2f8;
 
   --radius: 16px;
   --radius-sm: 10px;
-  /* Layered: a tight direct shadow for edge definition + a soft wide
-     ambient shadow for real lift, both tinted toward the background hue
-     instead of pure black — one flat shadow reads as flat; two stacked
-     shadows at different spreads is what actually looks lifted. */
-  --shadow: 0 2px 6px -2px rgba(4, 8, 20, 0.5), 0 16px 40px -20px rgba(4, 8, 20, 0.7);
+  /* Soft gray-tinted shadow suited to light cards — no more dark-bg tint. */
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.12);
 
   --sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --display: "Lexend", var(--sans);
@@ -71,12 +77,6 @@ body {
   margin: 0;
   min-height: 100svh;
   background: var(--bg);
-  /* Two glows, not three competing hues: the locked accent (teal) up top,
-     the reserved flame mark echoed faintly at the base — no unrelated
-     third color fighting for attention. */
-  background-image: radial-gradient(circle at 12% 0%, rgba(79, 176, 163, 0.14), transparent 42%),
-    radial-gradient(circle at 88% 100%, rgba(249, 115, 22, 0.08), transparent 45%);
-  background-attachment: fixed;
 }
 
 #root {

@@ -2,6 +2,13 @@ import { useState } from "react";
 import { Sparkles, Send } from "lucide-react";
 import { askPlanAssistant } from "../lib/assistant";
 
+const SUGGESTED_QUESTIONS = [
+  "What should we include in our go-bag?",
+  "What's the nearest shelter to our home?",
+  "How do I prepare for poor air quality?",
+  "What's still left on our prep checklist?",
+];
+
 export function AssistantChat() {
   const [question, setQuestion] = useState("");
   const [log, setLog] = useState([]); // { question, answer, error }[] — this session only, not persisted
@@ -50,8 +57,19 @@ export function AssistantChat() {
         </ul>
       )}
 
+      {log.length === 0 && (
+        <div className="assistant-suggestions">
+          {SUGGESTED_QUESTIONS.map((q) => (
+            <button type="button" key={q} className="assistant-chip" onClick={() => setQuestion(q)}>
+              {q}
+            </button>
+          ))}
+        </div>
+      )}
+
       <form onSubmit={handleAsk} className="assistant-form">
         <input
+          id="assistant-input"
           type="text"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}

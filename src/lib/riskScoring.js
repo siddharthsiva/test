@@ -1,11 +1,13 @@
-// EPA standard AQI breakpoints (public, from AirNow/EPA).
+// EPA standard AQI breakpoints (public, from AirNow/EPA). Colors match the
+// light-theme status tokens in index.css (--status-*); `bg` is the pastel
+// card background used behind the AQI hero/status cards.
 export const AQI_CATEGORIES = [
-  { max: 50, label: "Good", color: "#10b981" },
-  { max: 100, label: "Moderate", color: "#f5a524" },
-  { max: 150, label: "Unhealthy for Sensitive Groups", color: "#ea7c2c" },
-  { max: 200, label: "Unhealthy", color: "#e0483e" },
-  { max: 300, label: "Very Unhealthy", color: "#8b5cf6" },
-  { max: Infinity, label: "Hazardous", color: "#7f1d3a" },
+  { max: 50, label: "Good", color: "#16a34a", bg: "#f0fdf4" },
+  { max: 100, label: "Moderate", color: "#d97706", bg: "#fffbeb" },
+  { max: 150, label: "Unhealthy for Sensitive Groups", color: "#ea580c", bg: "#fff7ed" },
+  { max: 200, label: "Unhealthy", color: "#dc2626", bg: "#fef2f2" },
+  { max: 300, label: "Very Unhealthy", color: "#7c3aed", bg: "#f5f3ff" },
+  { max: Infinity, label: "Hazardous", color: "#831843", bg: "#fdf2f8" },
 ];
 
 /**
@@ -15,6 +17,24 @@ export const AQI_CATEGORIES = [
 export function scoreAqi(aqi) {
   const category = AQI_CATEGORIES.find((c) => aqi <= c.max);
   return category ?? AQI_CATEGORIES[AQI_CATEGORIES.length - 1];
+}
+
+/**
+ * Maps a real AQI category onto the plain-language status badge shown on
+ * both the Home activity card and the School activity list — one shared
+ * mapping so "Normal/Caution/Not Recommended" always means the same real
+ * severity everywhere, not two independently-invented taxonomies.
+ * @param {string} categoryLabel
+ * @returns {{ label: "Normal"|"Caution"|"Not Recommended", tone: "good"|"caution"|"bad" }}
+ */
+export function statusBadge(categoryLabel) {
+  if (categoryLabel === "Good" || categoryLabel === "Moderate") {
+    return { label: "Normal", tone: "good" };
+  }
+  if (categoryLabel === "Unhealthy for Sensitive Groups") {
+    return { label: "Caution", tone: "caution" };
+  }
+  return { label: "Not Recommended", tone: "bad" };
 }
 
 // Real guidance text, sourced from "School Air Quality Activity

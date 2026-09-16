@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LifeBuoy } from "lucide-react";
+import { LifeBuoy, Building2, Phone, FileText, HeartPulse, ShieldCheck, FileWarning } from "lucide-react";
 import { fetchDisasterDeclarations } from "../lib/disasterDeclarations";
 
 export function RecoveryResources() {
@@ -13,67 +13,59 @@ export function RecoveryResources() {
     });
   }, []);
 
+  const mostRecent = declarations[0];
+
   return (
     <div className="recovery-resources">
       <h2>
         <LifeBuoy size={17} strokeWidth={2.25} /> Recovery Resources
       </h2>
-      <p className="family-plan-sub">For after an incident — real official programs, not a synthesized "recovery score."</p>
+      <p className="family-plan-sub">Real information from federal and state sources.</p>
 
-      <div className="recovery-declarations">
-        <h3>Federal disaster declarations for Contra Costa County</h3>
-        {!loaded && <p className="recovery-muted">Checking OpenFEMA…</p>}
-        {loaded && declarations.length === 0 && (
-          <p className="recovery-muted">No federal disaster declarations on record for Contra Costa County.</p>
-        )}
-        {loaded && declarations.length > 0 && (
-          <ul>
-            {declarations.map((d) => (
-              <li key={d.disasterNumber}>
-                <strong>{d.title}</strong> ({d.incidentType}) —{" "}
-                {new Date(d.declarationDate).toLocaleDateString()}
-                <span className="recovery-muted">
-                  {" "}
-                  · Individual assistance: {d.individualAssistance ? "yes" : "no"} · Public assistance:{" "}
-                  {d.publicAssistance ? "yes" : "no"}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
+      <div className="recovery-grid">
+        <a className="recovery-tile" href="https://www.disasterassistance.gov/" target="_blank" rel="noreferrer">
+          <Building2 size={18} strokeWidth={2.25} />
+          <span className="recovery-tile-title">FEMA</span>
+          <span className="recovery-tile-sub">Disaster Assistance</span>
+        </a>
+        <a className="recovery-tile" href="https://www.211.org/get-help/disaster-recovery" target="_blank" rel="noreferrer">
+          <Phone size={18} strokeWidth={2.25} />
+          <span className="recovery-tile-title">211</span>
+          <span className="recovery-tile-sub">Local Resources</span>
+        </a>
+        <a className="recovery-tile" href="https://www.irs.gov/taxtopics/tc515" target="_blank" rel="noreferrer">
+          <FileText size={18} strokeWidth={2.25} />
+          <span className="recovery-tile-title">IRS</span>
+          <span className="recovery-tile-sub">Tax Relief</span>
+        </a>
+        <a
+          className="recovery-tile"
+          href="https://www.redcross.org/get-help/how-to-prepare-for-emergencies/types-of-emergencies/wildfire.html"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <HeartPulse size={18} strokeWidth={2.25} />
+          <span className="recovery-tile-title">Red Cross</span>
+          <span className="recovery-tile-sub">Emergency Support</span>
+        </a>
+        <a
+          className="recovery-tile"
+          href="https://www.caloes.ca.gov/office-of-the-director/policy-administration/individual-assistance/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <ShieldCheck size={18} strokeWidth={2.25} />
+          <span className="recovery-tile-title">Cal OES</span>
+          <span className="recovery-tile-sub">State Resources</span>
+        </a>
+        <a className="recovery-tile" href="https://www.fema.gov/disaster/declarations" target="_blank" rel="noreferrer">
+          <FileWarning size={18} strokeWidth={2.25} />
+          <span className="recovery-tile-title">Disaster Declarations</span>
+          <span className="recovery-tile-sub">
+            {!loaded ? "Checking…" : mostRecent ? `Most recent: ${new Date(mostRecent.declarationDate).getFullYear()}` : "None on record"}
+          </span>
+        </a>
       </div>
-
-      <h3>Where to go for help</h3>
-      <ul className="official-links">
-        <li>
-          <a href="https://www.disasterassistance.gov/" target="_blank" rel="noreferrer">
-            DisasterAssistance.gov
-          </a>{" "}
-          — check FEMA Individual Assistance eligibility and apply
-        </li>
-        <li>
-          <a href="https://www.211.org/get-help/disaster-recovery" target="_blank" rel="noreferrer">
-            211 Contra Costa
-          </a>{" "}
-          — call 2-1-1 for local recovery referrals (housing, food, financial help)
-        </li>
-        <li>
-          <a href="https://www.irs.gov/taxtopics/tc515" target="_blank" rel="noreferrer">
-            IRS casualty loss deduction (Form 4684)
-          </a>{" "}
-          — claiming disaster losses not covered by insurance
-        </li>
-        <li>
-          <a href="https://www.redcross.org/get-help/how-to-prepare-for-emergencies/types-of-emergencies/wildfire.html" target="_blank" rel="noreferrer">
-            American Red Cross wildfire recovery
-          </a>
-        </li>
-        <li>
-          <a href="https://www.caloes.ca.gov/office-of-the-director/policy-administration/individual-assistance/" target="_blank" rel="noreferrer">
-            Cal OES individual disaster assistance
-          </a>
-        </li>
-      </ul>
     </div>
   );
 }
