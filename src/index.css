@@ -3,56 +3,59 @@
 
   /* surfaces — clean light neutral, solid white cards (no glass/blur —
      the mockup's cards are solid white with a hairline border and a soft
-     shadow, not translucent panels over a glowing background). */
-  --bg: #f5f6f8;
+     shadow, not translucent panels over a glowing background).
+     Palette below adopted from the ChatGPT-generated static reference
+     (the one used to produce the original screenshot mockup) — trying its
+     exact tokens rather than approximating them, per explicit request. If
+     this doesn't look better than the prior palette, git commit 5bdc9d2
+     has the previous version of every file this touches. */
+  --bg: #f4f7fa;
   --surface: #ffffff;
   --surface-raised: #f8f9fb;
-  --border: #e5e7eb;
-  --border-strong: #d1d5db;
+  --border: #d9e4ef;
+  --border-strong: #c9d7e5;
 
   /* ink */
-  --text: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
+  --text: #10284b;
+  --text-secondary: #3d5573;
+  --text-muted: #66788e;
 
-  /* brand accent (used for buttons, links, active nav) — blue, matching
-     the approved mockup. Deliberately distinct from the warm flame/
-     emergency colors, which carry actual safety meaning. */
-  --accent: #2563eb;
-  --accent-soft: rgba(37, 99, 235, 0.1);
+  /* brand accent (used for buttons, links, active nav) */
+  --accent: #0c75e8;
+  --accent-soft: #eaf4ff;
   --on-accent: #ffffff;
 
   /* emergency accent — reserved, only appears when Emergency Mode is active */
-  --emergency: #dc2626;
-  --emergency-soft: rgba(220, 38, 38, 0.08);
+  --emergency: #d9363e;
+  --emergency-soft: #fff0f1;
 
-  /* brand mark — green mountain/leaf mark per the approved design, not the
-     earlier orange flame. */
-  --brand: #16a34a;
-  --brand-soft: rgba(22, 163, 74, 0.12);
+  /* brand mark — green mountain/leaf mark */
+  --brand: #159a61;
+  --brand-soft: #eaf8f0;
 
   /* AQI status scale — EPA order/meaning preserved. See src/lib/riskScoring.js. */
-  --status-good: #16a34a;
-  --status-moderate: #d97706;
+  --status-good: #159a61;
+  --status-moderate: #e6a800;
   --status-sensitive: #ea580c;
-  --status-unhealthy: #dc2626;
+  --status-unhealthy: #d9363e;
   --status-very-unhealthy: #7c3aed;
   --status-hazardous: #831843;
 
   /* light pastel card backgrounds behind each status, e.g. the "Current
      AQI" card's tinted background — separate from the status ink color
      above so text on top stays readable. */
-  --status-good-bg: #f0fdf4;
-  --status-moderate-bg: #fffbeb;
+  --status-good-bg: #eaf8f0;
+  --status-moderate-bg: #fff8df;
   --status-sensitive-bg: #fff7ed;
-  --status-unhealthy-bg: #fef2f2;
+  --status-unhealthy-bg: #fff0f1;
   --status-very-unhealthy-bg: #f5f3ff;
   --status-hazardous-bg: #fdf2f8;
 
   --radius: 16px;
   --radius-sm: 10px;
-  /* Soft gray-tinted shadow suited to light cards — no more dark-bg tint. */
-  --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.12);
+  /* Softer, single-layer shadow — matches the reference's flatter, less
+     layered card elevation. */
+  --shadow: 0 2px 8px rgba(30, 55, 80, 0.06);
 
   --sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --display: "Lexend", var(--sans);
