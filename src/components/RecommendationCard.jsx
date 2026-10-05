@@ -16,9 +16,11 @@ export function RecommendationCard({ aqi, source, recommendation, activity }) {
   if (aqi == null || !recommendation) {
     // Mirrors the real card's shape (same panel, same block sizes) so the
     // layout doesn't jump once data arrives — a bare "Loading…" line would
-    // collapse the card down to one row and then snap open.
+    // collapse the card down to one row and then snap open. No wrapping
+    // <div> here — the parent owns the .recommendation-row grid so it can
+    // add its own sibling cards (e.g. Home's hero photo) alongside these two.
     return (
-      <div className="recommendation-row">
+      <>
         <div className="recommendation-card recommendation-card--skeleton" aria-busy="true" aria-label="Loading conditions">
           <div className="skeleton-block skeleton-number" />
           <div className="skeleton-block skeleton-label" />
@@ -27,7 +29,7 @@ export function RecommendationCard({ aqi, source, recommendation, activity }) {
           <div className="skeleton-block skeleton-line" />
           <div className="skeleton-block skeleton-line" style={{ width: "80%" }} />
         </div>
-      </div>
+      </>
     );
   }
 
@@ -36,7 +38,7 @@ export function RecommendationCard({ aqi, source, recommendation, activity }) {
   const framing = activityFraming(category.label);
 
   return (
-    <div className="recommendation-row">
+    <>
       <div className="recommendation-card" style={{ "--category-color": category.color, "--category-bg": category.bg }}>
         <span className="card-eyebrow">Current AQI</span>
         <div className="aqi-number" style={{ color: category.color }}>
@@ -97,6 +99,6 @@ export function RecommendationCard({ aqi, source, recommendation, activity }) {
           </details>
         )}
       </div>
-    </div>
+    </>
   );
 }

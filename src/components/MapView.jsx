@@ -45,11 +45,24 @@ const closureIcon = L.divIcon({
 
 const LAYER_TABS = ["Air Quality", "Wildfires", "Evacuation Zones", "Shelters", "Road Closures"];
 
-function RecenterMap({ center }) {
+// Switching to a hazard layer tab used to just leave the map wherever it
+// was — a layer with a real, honest count (e.g. "41 evacuation zones") could
+// be entirely outside the visible view if those zones happen to be far from
+// the selected location (a regional Cal OES/NIFC fetch box is ~140mi wide,
+// so a real active-fire evacuation zone can legitimately be 100+ miles away
+// and simply never appear on-screen at the default zoom). Fitting the view
+// to whatever the active tab actually contains — including the location
+// pin, so distance stays visually honest — means a nonzero count always
+// corresponds to something you can actually see.
+function MapViewport({ center, activeLayer, layerPoints }) {
   const map = useMap();
   useEffect(() => {
-    map.setView(center, map.getZoom());
-  }, [center, map]);
+    if (layerPoints.length > 0) {
+      map.fitBounds(L.latLngBounds([center, ...layerPoints]), { padding: [48, 48], maxZoom: 11 });
+    } else {
+      map.setView(center, 9);
+    }
+  }, [center, activeLayer, layerPoints, map]);
   return null;
 }
 
@@ -112,6 +125,29 @@ export function MapView({
     [roadClosures, location.lat, location.lng]
   );
 
+  // Points the map should fit into view for whichever hazard tab is
+  // active — see MapViewport above. "Air Quality" isn't included here
+  // since its sensors are always local to LOCAL_AVERAGE_RADIUS_MILES and
+  // the existing center-on-location behavior already covers it.
+  const layerPoints = useMemo(() => {
+    if (activeLayer === "Wildfires") {
+      return [
+        ...hotspotsFromHere.map((h) => [h.lat, h.lng]),
+        ...firePerimeters.flatMap((f) => f.rings.flat()),
+      ];
+    }
+    if (activeLayer === "Evacuation Zones") {
+      return evacuationZones.flatMap((z) => z.rings.flat());
+    }
+    if (activeLayer === "Shelters") {
+      return sheltersFromHere.map((s) => [s.lat, s.lng]);
+    }
+    if (activeLayer === "Road Closures") {
+      return roadClosuresFromHere.map((c) => [c.lat, c.lng]);
+    }
+    return [];
+  }, [activeLayer, hotspotsFromHere, firePerimeters, evacuationZones, sheltersFromHere, roadClosuresFromHere]);
+
   // "Air Quality" is the overview tab — everything real shows at once, same
   // as the approved reference. The other tabs isolate one dataset so a
   // busy map can be decluttered on demand, without hiding anything by
@@ -145,7 +181,7 @@ export function MapView({
 
       <div className="map-view-body">
         <MapContainer center={center} zoom={9} scrollWheelZoom={true} style={{ height: "440px", width: "100%" }}>
-          <RecenterMap center={center} />
+          <MapViewport center={center} activeLayer={activeLayer} layerPoints={layerPoints} />
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

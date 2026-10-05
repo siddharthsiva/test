@@ -20,6 +20,11 @@
   --text-secondary: #3d5573;
   --text-muted: #66788e;
 
+  /* navy — same ink as --text, aliased for places that are semantically
+     "civic navy" (footer band, header wordmark) rather than "body text". */
+  --navy: #10284b;
+  --navy-soft: #1b3a63;
+
   /* brand accent (used for buttons, links, active nav) */
   --accent: #0c75e8;
   --accent-soft: #eaf4ff;
@@ -29,9 +34,13 @@
   --emergency: #d9363e;
   --emergency-soft: #fff0f1;
 
-  /* brand mark — green mountain/leaf mark */
-  --brand: #159a61;
-  --brand-soft: #eaf8f0;
+  /* brand mark — forest green, matching the Contra Costa County site's
+     nav/accent green (adopted at the user's request), used for nav links,
+     the leaf tagline, and civic-style icon accents. Kept distinct from the
+     AQI "Good" status green below, which carries real EPA meaning and
+     shouldn't move for a styling preference. */
+  --brand: #3d5e3a;
+  --brand-soft: #eaf1e6;
 
   /* AQI status scale — EPA order/meaning preserved. See src/lib/riskScoring.js. */
   --status-good: #159a61;
@@ -51,14 +60,22 @@
   --status-very-unhealthy-bg: #f5f3ff;
   --status-hazardous-bg: #fdf2f8;
 
-  --radius: 16px;
-  --radius-sm: 10px;
-  /* Softer, single-layer shadow — matches the reference's flatter, less
-     layered card elevation. */
-  --shadow: 0 2px 8px rgba(30, 55, 80, 0.06);
+  /* Tighter, sharper radius scale — the county reference's cards and tiles
+     read as crisp/civic, not the rounded-everywhere "AI dashboard" look
+     the previous 16px/10px scale defaulted to. */
+  --radius: 10px;
+  --radius-sm: 6px;
+  /* Flat by default: a hairline border does the separating, not a drop
+     shadow. Reserved for genuinely elevated things (sticky header, open
+     dropdowns) rather than every card. */
+  --shadow: 0 1px 2px rgba(16, 40, 75, 0.05);
 
   --sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --display: "Lexend", var(--sans);
+  /* Bold condensed civic/government-site face — used for nav labels and
+     eyebrow/section headings specifically (not body headings), matching
+     the Contra Costa County site's look at the user's request. */
+  --civic: "Barlow Condensed", var(--sans);
   --mono: ui-monospace, Consolas, monospace;
 
   font-family: var(--sans);

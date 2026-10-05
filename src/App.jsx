@@ -406,12 +406,23 @@ function App() {
 
           <div className="dashboard-grid">
             <div className="dashboard-main">
-              <RecommendationCard
-                aqi={aqiReading?.aqi}
-                source={aqiReading?.source}
-                recommendation={recommendation}
-                activity={activity}
-              />
+              <div className="recommendation-row recommendation-row--triple">
+                <RecommendationCard
+                  aqi={aqiReading?.aqi}
+                  source={aqiReading?.source}
+                  recommendation={recommendation}
+                  activity={activity}
+                />
+                <div className="hero-photo-card">
+                  <p>
+                    Healthy Students.
+                    <br />
+                    Stronger Communities.
+                    <br />
+                    A Safer East Bay.
+                  </p>
+                </div>
+              </div>
 
               <section className="map-hero">
                 <MapView
@@ -633,17 +644,19 @@ function App() {
       </div>
 
       <footer className="site-footer">
-        <div className="footer-brand">
-          <span className="brand-name">SmokeSmart East Bay</span>
-          <p>For healthier classrooms, safer homes, and a more resilient Contra Costa County.</p>
-        </div>
-        <div className="footer-links">
-          <a href="#data-sources">Data Sources</a>
-          <a href="#about">About</a>
-          <a href="#privacy">Privacy</a>
-        </div>
-        <div className="footer-tagline">
-          <Leaf size={13} strokeWidth={2.25} /> Real Data. Real People. A Safer Tomorrow.
+        <div className="footer-inner">
+          <div className="footer-brand">
+            <span className="brand-name">SmokeSmart East Bay</span>
+            <p>For healthier classrooms, safer homes, and a more resilient Contra Costa County.</p>
+          </div>
+          <div className="footer-links">
+            <a href="#data-sources">Data Sources</a>
+            <a href="#about">About</a>
+            <a href="#privacy">Privacy</a>
+          </div>
+          <div className="footer-tagline">
+            <Leaf size={13} strokeWidth={2.25} /> Real Data. Real People. A Safer Tomorrow.
+          </div>
         </div>
       </footer>
     </div>
