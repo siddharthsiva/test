@@ -687,6 +687,29 @@
   align-items: start;
 }
 
+.map-touch-wrap {
+  position: relative;
+}
+
+.map-touch-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: rgba(16, 40, 75, 0.35);
+  color: #ffffff;
+  font-family: var(--civic);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
 @media (max-width: 720px) {
   .map-view-body {
     grid-template-columns: 1fr;

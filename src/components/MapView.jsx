@@ -87,6 +87,20 @@ export function MapView({
   const center = [location.lat, location.lng];
   const [activeLayer, setActiveLayer] = useState("Air Quality");
 
+  // On a touch device, Leaflet's default drag/pinch handling grabs any touch
+  // that starts over the map — including a thumb just trying to scroll past
+  // it down the page — which is exactly the "map feels stuck" scrolling
+  // problem. Keep the map non-interactive until the user deliberately taps
+  // it once, then hand touch control to Leaflet for the rest of the visit.
+  // Desktop is untouched (mouse-drag never fights page scroll the same way).
+  const [touchMapActive, setTouchMapActive] = useState(true);
+  const [isTouch, setIsTouch] = useState(false);
+  useEffect(() => {
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    setIsTouch(coarse);
+    if (coarse) setTouchMapActive(false);
+  }, []);
+
   // hotspots/shelters/roadClosures arrive with distance/direction already
   // computed by their fetch functions — but relative to WHATEVER point was
   // passed to that fetch (e.g. the selected city), not necessarily the point
@@ -180,7 +194,26 @@ export function MapView({
       </div>
 
       <div className="map-view-body">
-        <MapContainer center={center} zoom={9} scrollWheelZoom={true} style={{ height: "440px", width: "100%" }}>
+        <div className="map-touch-wrap">
+          {isTouch && !touchMapActive && (
+            <button
+              type="button"
+              className="map-touch-overlay"
+              onClick={() => setTouchMapActive(true)}
+              onTouchStart={() => setTouchMapActive(true)}
+            >
+              Tap to explore the map
+            </button>
+          )}
+          <MapContainer
+            center={center}
+            zoom={9}
+            scrollWheelZoom={true}
+            dragging={touchMapActive}
+            touchZoom={touchMapActive}
+            doubleClickZoom={touchMapActive}
+            style={{ height: "440px", width: "100%" }}
+          >
           <MapViewport center={center} activeLayer={activeLayer} layerPoints={layerPoints} />
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -300,7 +333,8 @@ export function MapView({
                 </Popup>
               </Marker>
             ))}
-        </MapContainer>
+          </MapContainer>
+        </div>
 
         <div className="map-legend">
           <span className="map-legend-heading">Your Location</span>
