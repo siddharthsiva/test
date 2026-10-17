@@ -4,21 +4,25 @@ import { distanceMiles } from "./haversine";
 const PURPLEAIR_KEY = import.meta.env.VITE_PURPLEAIR_API_KEY;
 const AIRNOW_KEY = import.meta.env.VITE_AIRNOW_API_KEY;
 
-// Bounding box half-width in degrees (~1.5deg ≈ 104 miles) for the PurpleAir
-// query. Wide enough that zooming out well past the county still shows a
-// dense field of sensors instead of running out of data at the edges.
-const BOX_DEGREES = 1.5;
+// Bounding box half-width in degrees. PurpleAir bills per row *returned by
+// the API itself* — the MAX_SENSORS cap below only trims what we render
+// client-side, after already paying for every row in the box. A 1.5deg box
+// (~104mi half-width, ~208mi across) was burning through a fresh 1M-point
+// account in days. 0.4deg (~28mi half-width, ~56mi across) still comfortably
+// covers all of Contra Costa County plus neighboring Oakland/Berkeley/SF,
+// at roughly 1/14th the area (and therefore roughly 1/14th the sensor rows
+// billed) of the old box.
+const BOX_DEGREES = 0.4;
 
 // The "official" location AQI average only uses sensors within this radius,
 // so a wider map box (above) doesn't dilute the location-specific reading
 // with sensors from a neighboring city.
 const LOCAL_AVERAGE_RADIUS_MILES = 8;
 
-// A 1.5deg box can return several thousand sensors in dense areas —
-// plotting all of them as individual map markers would hurt render
-// performance, especially on phones. Capping to the closest N keeps the map
-// fast while still being far richer than the old tight box.
-const MAX_SENSORS = 1200;
+// Client-side render cap only — does NOT reduce billed cost (see BOX_DEGREES
+// above). Kept as a safety net for render performance in unusually dense
+// areas; the smaller box above now rarely approaches this anyway.
+const MAX_SENSORS = 500;
 
 // PurpleAir sensors occasionally report physically implausible raw readings
 // (malfunction/miscalibration) — e.g. 4998.5 µg/m³ next to neighbors reading
@@ -116,6 +120,15 @@ export function averageFromSensors(sensors, lat, lng) {
 /**
  * Query AirNow for the current official AQI reading nearest a lat/lng.
  * Requires VITE_AIRNOW_API_KEY. Returns null if unavailable/no data.
+ *
+ * Uses the "Current Observations by Latitude/Longitude or ZIP Code" endpoint
+ * (/aq/observation/current/ziplatlong/) — AirNow retired the old
+ * /aq/observation/latLong/current/ endpoint on 2026-09-30 (confirmed via
+ * AirNow's own migration notice, docs.airnowapi.org/docs/AirNowAPIUpdates2026June.pdf,
+ * after the old one started returning 410 Gone). The existing API key works
+ * unchanged on the new endpoint, but the response schema is different —
+ * verified against a real live response rather than assumed from docs:
+ * `ParameterName`/`AQI` became lowercase `parameterName`/`nowcastAQI`.
  */
 async function fetchAirNow(lat, lng) {
   if (!AIRNOW_KEY) return null;
@@ -128,14 +141,14 @@ async function fetchAirNow(lat, lng) {
     API_KEY: AIRNOW_KEY,
   });
 
-  const res = await fetch(`https://www.airnowapi.org/aq/observation/latLong/current/?${params}`);
+  const res = await fetch(`https://www.airnowapi.org/aq/observation/current/ziplatlong/?${params}`);
   if (!res.ok) return null;
 
   const body = await res.json();
-  const pm25Reading = body.find((r) => r.ParameterName === "PM2.5");
+  const pm25Reading = body.find((r) => r.parameterName === "PM2.5");
   if (!pm25Reading) return null;
 
-  return { aqi: pm25Reading.AQI, source: "airnow", sensorCount: 1 };
+  return { aqi: pm25Reading.nowcastAQI, source: "airnow", sensorCount: 1 };
 }
 
 /** Deterministic placeholder reading so the UI is demoable with no API keys yet. */
