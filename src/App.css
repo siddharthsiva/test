@@ -688,7 +688,12 @@
 }
 
 .map-touch-wrap {
+  /* Leaflet's internal panes/controls use z-index values up to 1000
+     (tile pane, markers, zoom buttons). Without this element creating
+     its own stacking context, those escape and render on top of the
+     sticky .topbar (z-index: 20) while scrolling past the map. */
   position: relative;
+  z-index: 0;
 }
 
 .map-touch-overlay {
@@ -1155,6 +1160,21 @@
 
 .household-banner-button:hover {
   background: var(--navy-soft);
+}
+
+@media (max-width: 560px) {
+  /* On phone widths the icon + heading + nowrap button no longer fit on
+     one row — the button was getting squeezed against the right edge
+     with its text crowded/clipped. Stack the button below full-width
+     instead of fighting for the same row as the icon and heading. */
+  .household-banner {
+    flex-wrap: wrap;
+  }
+
+  .household-banner-button {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* ---------- household view / assistant ---------- */
@@ -1855,6 +1875,17 @@
 
   .app-shell {
     padding-top: 1rem;
+  }
+
+  /* .emergency-banner's "top: 76px" assumes the single-row desktop topbar
+     height. Once .topbar-inner stacks into 3 rows above, the sticky topbar
+     is well over 76px tall and renders on top of (hides) the banner's
+     upper portion. Drop the sticky pin here rather than guess a taller
+     fixed offset — it still appears in normal flow, just without
+     following scroll on this narrow a screen. */
+  .emergency-banner {
+    position: static;
+    top: auto;
   }
 }
 
