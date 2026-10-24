@@ -6,13 +6,12 @@ const { getFirestore } = require("firebase-admin/firestore");
 initializeApp();
 
 const GEMINI_API_KEY = defineSecret("GEMINI_API_KEY");
-// "-latest" is a real Google alias (confirmed via ai.google.dev/gemini-api/docs/models)
-// that auto-points to the current GA Flash release — currently Gemini 3.7
-// Flash — so this doesn't go stale the way a dated model id would. Free tier:
-// 1,500 requests/day at ai.google.dev, no billing needed — separate from
-// Firebase's own Blaze requirement below, which is about hosting the
-// function itself, not which model it calls.
-const MODEL = "gemini-flash-latest";
+// "gemini-flash-latest" silently hung on every real generateContent call —
+// no error, no response, until our own abort cut it off — even though the
+// API key and connectivity were both fine (confirmed by a live GET to
+// /v1beta/models, which answered in 116ms and listed this id as current).
+// Use a real, API-confirmed model id instead of the "-latest" alias.
+const MODEL = "gemini-2.5-flash";
 
 // Kept in sync by hand with src/lib/prepChecklist.js's phase labels and
 // src/lib/riskScoring.js's CDE categories — functions/ is a separate
@@ -105,23 +104,43 @@ ${planSummary}
 
 Prep checklist items already checked off: ${checkedIds.length ? checkedIds.join(", ") : "none yet"}`;
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
-    {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-goog-api-key": GEMINI_API_KEY.value(),
-      },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: question }] }],
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        generationConfig: { maxOutputTokens: 500 },
-      }),
-    }
-  );
+  // Every observed production failure has been a silent hang on this fetch —
+  // the function running out its full default timeout with no error ever
+  // logged, which looks identical whether Gemini is just slow or the call
+  // never lands at all. An explicit abort well under the function's own
+  // timeout turns that into a fast, loggable error instead of a mystery.
+  const controller = new AbortController();
+  const abortTimer = setTimeout(() => controller.abort(), 25_000);
+
+  let res;
+  try {
+    res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-goog-api-key": GEMINI_API_KEY.value(),
+        },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: question }] }],
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          generationConfig: { maxOutputTokens: 500 },
+        }),
+        signal: controller.signal,
+      }
+    );
+  } catch (err) {
+    console.error("askPlanAssistant: Gemini fetch failed", err);
+    const timedOut = err.name === "AbortError";
+    throw new HttpsError("internal", timedOut ? "Assistant request timed out." : "Assistant request failed.");
+  } finally {
+    clearTimeout(abortTimer);
+  }
 
   if (!res.ok) {
+    const errorText = await res.text().catch(() => "");
+    console.error(`askPlanAssistant: Gemini responded ${res.status}`, errorText);
     throw new HttpsError("internal", `Assistant request failed (${res.status}).`);
   }
 
