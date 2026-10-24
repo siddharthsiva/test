@@ -1,51 +1,66 @@
 /**
- * Hand-built SVG mark: a civic-style circular badge (navy ring, tree +
- * rolling hills + bay wave) evoking a county-seal aesthetic without
- * reproducing any real government seal — SmokeSmart East Bay is not an
- * official county product. No image-generation tool is available in this
- * environment, so this is authored directly as flat geometric shapes.
+ * Hand-built SVG mark: East Bay hill + pine tree above the bay, with a
+ * wildfire smoke plume curling up behind the crest — the app's actual
+ * subject (smoke risk near the bay), not generic nature clipart. No
+ * image-generation tool is available in this environment, so this is
+ * authored directly as flat geometric shapes with gradient fills, tuned to
+ * stay legible from a slide-sized render down to a 16px favicon.
  */
 export function BrandLogo({ size = 40 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 40 40" role="img" aria-label="SmokeSmart East Bay logo">
+    <svg width={size} height={size} viewBox="0 0 64 64" role="img" aria-label="SmokeSmart East Bay logo">
       <defs>
-        <linearGradient id="ssb-hill-far" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#5c7a52" />
-          <stop offset="100%" stopColor="#3d5e3a" />
+        <linearGradient id="ssb-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#eaf4ff" />
+          <stop offset="100%" stopColor="#ffffff" />
         </linearGradient>
-        <linearGradient id="ssb-hill-near" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#2f4a2c" />
-          <stop offset="100%" stopColor="#233920" />
+        <linearGradient id="ssb-hill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#2cc07a" />
+          <stop offset="100%" stopColor="#0f8a53" />
         </linearGradient>
+        <linearGradient id="ssb-water" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#2d94f0" />
+          <stop offset="100%" stopColor="#0c6fd6" />
+        </linearGradient>
+        <clipPath id="ssb-clip">
+          <circle cx="32" cy="32" r="30" />
+        </clipPath>
+        <filter id="ssb-wisp" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="1.15" />
+        </filter>
       </defs>
 
-      <circle cx="20" cy="20" r="20" fill="#10284b" />
-      <circle cx="20" cy="20" r="17" fill="#eaf4ff" />
+      <circle cx="32" cy="32" r="30" fill="url(#ssb-sky)" />
 
-      {/* rolling hills */}
-      <path d="M2 26 Q10 17 17 23 Q24 15 33 22 L38 26 Z" fill="url(#ssb-hill-far)" />
-      <path d="M2 30 Q12 21 20 27 Q28 20 38 28 L38 33.5 Q20 36 2 33.5 Z" fill="url(#ssb-hill-near)" />
+      <g clipPath="url(#ssb-clip)">
+        <g filter="url(#ssb-wisp)" fill="#f97316">
+          <ellipse cx="40" cy="36" rx="9" ry="5.3" opacity="0.92" transform="rotate(-52 40 36)" />
+          <ellipse cx="46.2" cy="24" rx="7.4" ry="4.3" opacity="0.72" transform="rotate(-50 46.2 24)" />
+          <ellipse cx="50.5" cy="13" rx="5.4" ry="3.2" opacity="0.52" transform="rotate(-45 50.5 13)" />
+        </g>
 
-      {/* tree */}
-      <path d="M15.5 21.5 L18.5 21.5 L17 18.5 Z" fill="#eaf4ff" opacity="0" />
-      <path
-        d="M17 12.5 L14.3 17.6 L15.8 17.6 L13.4 21.6 L20.6 21.6 L18.2 17.6 L19.7 17.6 Z"
-        fill="#2f4a2c"
-      />
-      <rect x="16.3" y="21.4" width="1.4" height="2.1" fill="#2f4a2c" />
+        <path
+          d="M-4 46 C 4 46, 10 20, 27 20 C 44 20, 50 46, 68 46 L 68 68 L -4 68 Z"
+          fill="url(#ssb-hill)"
+        />
 
-      {/* bay wave */}
-      <path
-        d="M3 30.5 Q8 28.7 13 30.5 Q18 32.3 23 30.5 Q28 28.7 33 30.5 Q35.5 31.4 37 31"
-        fill="none"
-        stroke="#0c75e8"
-        strokeWidth="1.3"
-        strokeLinecap="round"
-        opacity="0.75"
-      />
+        <g transform="translate(27 20)">
+          <path d="M-7.5 3 L0 -10.5 L7.5 3 Z" fill="#0b3d2e" />
+          <path d="M-5.5 -3 L0 -14.5 L5.5 -3 Z" fill="#0b3d2e" />
+        </g>
 
-      <circle cx="20" cy="20" r="17" fill="none" stroke="#10284b" strokeWidth="1.4" />
-      <circle cx="20" cy="20" r="19.25" fill="none" stroke="#ffffff" strokeOpacity="0.5" strokeWidth="1.2" />
+        <path
+          d="M-4 46 C 6 42, 14 50, 24 46 C 34 42, 42 50, 52 46 C 60 43, 64 46, 68 44 L 68 68 L -4 68 Z"
+          fill="url(#ssb-water)"
+        />
+        <path
+          d="M-4 54 C 8 50, 16 58, 28 54 C 40 50, 48 58, 60 54 C 64 53, 66 54, 68 53 L 68 68 L -4 68 Z"
+          fill="#0a5ec4"
+          opacity="0.55"
+        />
+      </g>
+
+      <circle cx="32" cy="32" r="29.1" fill="none" stroke="#10284b" strokeOpacity="0.85" strokeWidth="1.8" />
     </svg>
   );
 }
