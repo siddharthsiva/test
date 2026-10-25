@@ -12,6 +12,7 @@ import {
   Info,
   Phone,
   Sparkles,
+  X,
 } from "lucide-react";
 import { BrandLogo } from "./components/BrandLogo";
 import { LOCATIONS } from "./lib/locations";
@@ -333,6 +334,14 @@ function App() {
             </span>
           </div>
         </div>
+
+        {emergencyActive && (
+          <div className="topbar-emergency-row">
+            <button type="button" className="emergency-exit-button" onClick={() => setEmergencyActive(false)}>
+              <X size={16} strokeWidth={2.5} /> Exit Emergency Mode
+            </button>
+          </div>
+        )}
       </header>
 
       <div className="app-shell">

@@ -1059,6 +1059,43 @@
   padding: 1.25rem clamp(1.25rem, 3vw, 2.5rem) 3rem;
 }
 
+.topbar-emergency-row {
+  /* The only way to turn Emergency Mode off is normally the toggle switch
+     in the Home tab's controls row — which the full-screen
+     .emergency-banner overlay covers, on every tab, at any scroll
+     position. Without this, there is no way to exit once it's on.
+
+     This lives inside .topbar itself (a second row, below the brand/nav/
+     locality row) rather than floating independently, so it inherits the
+     topbar's own `position: sticky; top: 0` for free instead of needing
+     its own scroll/viewport-corner positioning logic — which is exactly
+     the kind of per-breakpoint height assumption that already broke twice
+     in this area (see .emergency-banner's history above). */
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.25rem 0.85rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.emergency-exit-button {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--emergency);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--emergency);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.emergency-exit-button:hover {
+  background: var(--emergency-soft);
+}
+
 .emergency-banner .emergency-mode {
   background: var(--emergency-soft);
   box-shadow: 0 0 0 1px var(--emergency), var(--shadow);
