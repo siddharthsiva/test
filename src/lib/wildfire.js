@@ -94,6 +94,20 @@ export function nearestWildfireFrom(hotspots, lat, lng) {
     .sort((a, b) => a.distanceMiles - b.distanceMiles)[0];
 }
 
+// VIIRS confidence is a single-letter code, not a blank/error value — FIRMS'
+// own FAQ: l = Low, n = Nominal, h = High, based on the detection
+// algorithm's intermediate quantities. Shown raw before this (e.g. "n"),
+// which read as broken/truncated rather than as the real "Nominal" rating
+// it is. (MODIS_NRT reports confidence as 0-100 instead; not currently a
+// source this app queries, but the fallback below still shows that
+// unmodified rather than guessing at an unfamiliar code.)
+const VIIRS_CONFIDENCE_LABELS = { l: "Low", n: "Nominal", h: "High" };
+
+function formatConfidence(raw) {
+  if (raw == null || raw === "") return "unknown";
+  return VIIRS_CONFIDENCE_LABELS[raw.toLowerCase()] ?? raw;
+}
+
 function parseHotspots(csv) {
   const lines = csv.trim().split("\n");
   if (lines.length < 2) return [];
@@ -108,7 +122,7 @@ function parseHotspots(csv) {
     return {
       lat: parseFloat(cols[latIdx]),
       lng: parseFloat(cols[lngIdx]),
-      confidence: cols[confIdx] ?? "unknown",
+      confidence: formatConfidence(cols[confIdx]),
     };
   }).filter((h) => !Number.isNaN(h.lat) && !Number.isNaN(h.lng));
 }
