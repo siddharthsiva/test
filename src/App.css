@@ -1029,16 +1029,34 @@
 }
 
 .emergency-banner {
-  /* Pinned just below the topbar so it reads as a priority alert sitting
-     above the page — same idea as any "this takes precedence" banner
-     pattern — rather than an inline block that just pushes the dashboard
-     grid down and reads as another ordinary card. Shows on every tab
-     (Home/School/Household), not just Home, since an active emergency is
-     relevant regardless of which view you're looking at. */
-  position: sticky;
-  top: 76px;
+  /* A true full-screen takeover, not a tall inline banner — its content
+     (fire distance, wind, AQI, evacuation zones, shelters, family plan)
+     is routinely taller than the viewport, so a `position: sticky` or
+     `static` banner just scrolled along with the rest of the page: half
+     stuck, half not, while the dashboard grid kept rendering underneath
+     it. `position: fixed; inset: 0` covers the whole viewport and scrolls
+     its own content independently via overflow-y, instead of the page.
+     z-index is deliberately BELOW .topbar's (20), not above — the topbar
+     is itself `position: sticky; top: 0`, so it naturally paints on top
+     of this overlay's top edge and stays reachable (nav tabs, the
+     Emergency Mode toggle) without this rule needing to know the
+     topbar's height, which is what broke across breakpoints before
+     (fixed 76px offset vs. the 3-row mobile topbar). */
+  position: fixed;
+  inset: 0;
   z-index: 15;
-  margin: 1.25rem 0;
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+.emergency-banner-inner {
+  /* Fixed positioning escapes .app-shell's own max-width/centering, so
+     this inner wrapper re-applies the same containment the rest of the
+     dashboard uses — otherwise the card stretches full-bleed on a wide
+     monitor instead of matching everything else on the page. */
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 1.25rem clamp(1.25rem, 3vw, 2.5rem) 3rem;
 }
 
 .emergency-banner .emergency-mode {
@@ -1875,17 +1893,6 @@
 
   .app-shell {
     padding-top: 1rem;
-  }
-
-  /* .emergency-banner's "top: 76px" assumes the single-row desktop topbar
-     height. Once .topbar-inner stacks into 3 rows above, the sticky topbar
-     is well over 76px tall and renders on top of (hides) the banner's
-     upper portion. Drop the sticky pin here rather than guess a taller
-     fixed offset — it still appears in normal flow, just without
-     following scroll on this narrow a screen. */
-  .emergency-banner {
-    position: static;
-    top: auto;
   }
 }
 
