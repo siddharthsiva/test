@@ -41,8 +41,19 @@ const MAX_PLAUSIBLE_PM25 = 1000;
 export async function fetchPurpleAirSensors(lat, lng) {
   if (!PURPLEAIR_KEY) return [];
 
+  // Plain "pm2.5" is a single, un-smoothed 2-minute snapshot — PurpleAir's
+  // own API community explicitly warns against using it for anything but a
+  // live single-sensor dashboard, since normal sensor-to-sensor noise (a
+  // brief gust, a momentary dip) can swing it well away from the real
+  // ambient level for that instant. "pm2.5_10minute" is PurpleAir's own
+  // server-computed rolling average — still genuinely real-time for a
+  // wildfire-safety tool (10 minutes old, not stale), but smooths out
+  // exactly the kind of noise that was making readings swing unrealistically
+  // low/high compared to other sources computing an average, not a snapshot.
+  // Falls back to the raw field only for a sensor too new to have 10
+  // minutes of history yet (null field) rather than dropping it entirely.
   const params = new URLSearchParams({
-    fields: "pm2.5,latitude,longitude",
+    fields: "pm2.5_10minute,pm2.5,latitude,longitude",
     nwlat: String(lat + BOX_DEGREES),
     nwlng: String(lng - BOX_DEGREES),
     selat: String(lat - BOX_DEGREES),
@@ -57,12 +68,17 @@ export async function fetchPurpleAirSensors(lat, lng) {
 
     const body = await res.json();
     const fields = body.fields ?? [];
-    const pm25Idx = fields.indexOf("pm2.5");
+    const pm25AvgIdx = fields.indexOf("pm2.5_10minute");
+    const pm25RawIdx = fields.indexOf("pm2.5");
     const latIdx = fields.indexOf("latitude");
     const lngIdx = fields.indexOf("longitude");
 
     return (body.data ?? [])
-      .map((row) => ({ pm25: row[pm25Idx], lat: row[latIdx], lng: row[lngIdx] }))
+      .map((row) => {
+        const avg = row[pm25AvgIdx];
+        const raw = row[pm25RawIdx];
+        return { pm25: typeof avg === "number" ? avg : raw, lat: row[latIdx], lng: row[lngIdx] };
+      })
       .filter(
         (s) =>
           typeof s.pm25 === "number" &&
