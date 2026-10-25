@@ -19,7 +19,10 @@ export function ensureSignedIn() {
       } else {
         signInAnonymously(auth)
           .then((cred) => resolve(cred.user.uid))
-          .catch(() => resolve(null));
+          .catch((err) => {
+            console.error("Anonymous sign-in failed:", err);
+            resolve(null);
+          });
       }
     });
   });

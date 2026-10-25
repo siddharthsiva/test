@@ -24,10 +24,15 @@ export function AssistantChat() {
     try {
       const answer = await askPlanAssistant(q);
       setLog((prev) => [...prev, { question: q, answer }]);
-    } catch {
+    } catch (err) {
+      console.error("askPlanAssistant failed:", err);
+      const detail = err?.code ? ` (${err.code})` : "";
       setLog((prev) => [
         ...prev,
-        { question: q, error: "Couldn't reach the assistant — it may not be set up yet (see README)." },
+        {
+          question: q,
+          error: `Couldn't reach the assistant${detail} — it may not be set up yet (see README, or check the browser console for the real error).`,
+        },
       ]);
     }
     setAsking(false);
